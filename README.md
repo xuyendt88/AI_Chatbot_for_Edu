@@ -35,5 +35,4 @@ AI_Chatbot_for_Edu/
 ├── my_work_log           # Nhật ký tiến độ công việc và ghi chú phát triển
 └── README.md             # Tài liệu hướng dẫn dự án
 
-````
-├── visualize_grade_12.py # Script trực quan hóa cấu trúc điểm số và kết quả thi thử khối 12
+
