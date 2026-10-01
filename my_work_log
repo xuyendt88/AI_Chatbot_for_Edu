@@ -1,0 +1,9 @@
+01-10-2026
+* `Settings > Collaborators > Add people` > Mời 4 thành viên (Tùng, Đức Anh, Nguyên, Đạt) vào kho dự án.
+
+* `Add file > .github/CODEOWNERS` > Tạo file phân quyền quản lý file cho từng thành viên.
+
+* `Settings > Branches > Add classic branch protection rule` > Bật khóa bảo vệ nhánh `main`, bắt buộc dùng Pull Request và duyệt từ Code Owner.
+
+* `Add file > .github/workflows/create_secret.yml` > Tạo GitHub Actions tự động sinh file bảo mật.
+* `Settings > Secrets and variables > Actions > New repository secret` > Cất OpenRouter API Key (`APP_API_KEY`) vào két sắt an toàn của GitHub.
