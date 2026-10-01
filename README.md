@@ -30,7 +30,7 @@ AI_Chatbot_for_Edu/
 ├── ml_model.py           # Script huấn luyện, đánh giá và lưu mô hình ML dự đoán điểm
 ├── tools.py              # Các hàm bổ trợ (Function Calling): tra cứu điểm, lọc trường, gợi ý ngành
 ├── agent.py              # Cấu hình AI Agent / LLM xử lý hội thoại và điều phối công cụ
-├── app.py                # Giao diện ứng dụng người dùng (Streamlit / Gradio / FastAPI)
+├── app.py                # Giao diện ứng dụng người dùng (Streamlit)
 ├── requirements.txt      # Danh sách các thư viện Python phụ thuộc
 ├── my_work_log           # Nhật ký tiến độ công việc và ghi chú phát triển
 └── README.md             # Tài liệu hướng dẫn dự án
