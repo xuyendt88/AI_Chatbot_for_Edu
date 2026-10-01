@@ -1,9 +1,22 @@
+20-09-2026 họp nhóm: khởi động nhóm, xây ý tưởng.
+
+26-09-2026 họp nhóm: 
+1. Chốt 1 ý tưởng để triển khai => chatbot Edu
+2. Phân chia công việc cụ thể (ai làm phần nào)
+
+29-09-2026
+Chốt file data (thầy hỗ trợ)
+
 01-10-2026
 * `Settings > Collaborators > Add people` > Mời 4 thành viên (Tùng, Đức Anh, Nguyên, Đạt) vào kho dự án.
-
 * `Add file > .github/CODEOWNERS` > Tạo file phân quyền quản lý file cho từng thành viên.
-
 * `Settings > Branches > Add classic branch protection rule` > Bật khóa bảo vệ nhánh `main`, bắt buộc dùng Pull Request và duyệt từ Code Owner.
-
 * `Add file > .github/workflows/create_secret.yml` > Tạo GitHub Actions tự động sinh file bảo mật.
 * `Settings > Secrets and variables > Actions > New repository secret` > Cất OpenRouter API Key (`APP_API_KEY`) vào két sắt an toàn của GitHub.
+
+01-10-2026
+- Định hướng huấn luyện mô hình với data hiện tại. Bản chất là tìm mô hình thích hợp với data và ra được mục đích của việc huấn luyện này là gì. (Tùng + Đức Anh sẽ đề xuất và mn góp ý)
+- Xác định đc tính cách của bot (rules) trong agent.py (Tùng và Đức Anh đề xuất nhóm góp ý)
+- Tổng hợp các chức năng của botchat - phần user có thể hỏi, chính là tools.py (Nguyên đề xuất nhóm góp ý)
+- Và chốt deadline cho version 1 (tức là tất cả các file chính đều phải xong) cho chatbot. để có thể test và cải tiến.
+Thứ 2 thầy yêu cầu trình bày về ý tưởng nên những đầu việc này phải chốt thì công việc mới trôi được.
