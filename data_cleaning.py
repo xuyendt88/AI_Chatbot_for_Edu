@@ -1,106 +1,88 @@
 import os
-import re
 import pandas as pd
+import warnings
 
-# Lấy đường dẫn gốc của dự án
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+warnings.filterwarnings('ignore')
 
-def clean_tuition(text):
-    """Trích xuất khoảng học phí trung bình (triệu VNĐ/năm) từ chuỗi văn bản"""
-    if pd.isna(text):
-        return None
-    numbers = re.findall(r'\d+', str(text))
-    if len(numbers) >= 2:
-        return (float(numbers[0]) + float(numbers[1])) / 2
-    elif len(numbers) == 1:
-        return float(numbers[0])
-    return None
+# Danh sách tệp dữ liệu nằm trong thư mục data/
+FILE_LIST = [
+    '01_Danh_sach_va_Thanh_tich_hoc_sinh.csv',
+    '02_Ket_qua_va_Xep_hang_Hoc_tap.csv',
+    '03_Nganh_hoc_va_Huong_nghiep.csv',
+    '04_Tuyen_sinh_va_Hoc_phi.csv',
+    '05_Ket_qua_thi_thu.csv',
+]
 
-def get_file_path(filename):
-    """Lấy đường dẫn chính xác của file CSV trong thư mục data hoặc thư mục gốc"""
-    path_data = os.path.join(BASE_DIR, 'data', filename)
-    if os.path.exists(path_data):
-        return path_data
-    
-    path_root = os.path.join(BASE_DIR, filename)
-    if os.path.exists(path_root):
-        return path_root
-        
-    for root, dirs, files in os.walk(BASE_DIR):
-        if filename in files:
-            return os.path.join(root, filename)
-            
-    raise FileNotFoundError(f"❌ Không tìm thấy file {filename}")
 
-def load_and_clean_data():
-    """Hàm làm sạch và tổng hợp dữ liệu"""
-    print("⏳ Đang tải và làm sạch dữ liệu...")
-    
-    # 1. Đọc các file dữ liệu
-    df_hoc_sinh = pd.read_csv(get_file_path('01_Danh_sach_va_Thanh_tich_hoc_sinh.csv'))
-    df_xep_hang = pd.read_csv(get_file_path('02_Ket_qua_va_Xep_hang_Hoc_tap.csv'))
-    df_nganh = pd.read_csv(get_file_path('03_Nganh_hoc_va_Huong_nghiep.csv'))
-    df_tuyen_sinh = pd.read_csv(get_file_path('04_Tuyen_sinh_va_Hoc_phi.csv'))
-    df_thi_thu = pd.read_csv(get_file_path('05_Ket_qua_thi_thu.csv'))
+def inspect_and_clean_all():
+    cleaned_dfs = {}
 
-    # 2. CHUẨN HÓA MÃ HỌC SINH VÀ DỮ LIỆU CHUỖI
-    for df in [df_hoc_sinh, df_xep_hang, df_thi_thu]:
-        for col in df.select_dtypes(include='object').columns:
-            df[col] = df[col].astype(str).str.strip()
+    for file_name in FILE_LIST:
+        input_path = f'data/{file_name}'
 
-    # 3. XỬ LÝ FILE TUYỂN SINH & HỌC PHÍ
-    if 'diem_chuan' in df_tuyen_sinh.columns:
-        # Nếu điểm chuẩn ở thang 10 thì nhân 3, nếu thang 30 sẵn thì giữ nguyên
-        max_score = df_tuyen_sinh['diem_chuan'].max()
-        if max_score <= 10.0:
-            df_tuyen_sinh['diem_chuan_thang_30'] = df_tuyen_sinh['diem_chuan'] * 3.0
-        else:
-            df_tuyen_sinh['diem_chuan_thang_30'] = df_tuyen_sinh['diem_chuan']
+        print('=' * 60)
+        print(f'🔍 ĐANG KIỂM TRA FILE: {input_path}')
+        print('=' * 60)
 
-    if 'hoc_phi' in df_tuyen_sinh.columns:
-        df_tuyen_sinh['hoc_phi_so'] = df_tuyen_sinh['hoc_phi'].apply(clean_tuition)
+        if not os.path.exists(input_path):
+            print(f'❌ Không tìm thấy tệp: {input_path}')
+            continue
 
-    # 4. MERGE DỮ LIỆU HỌC SINH (Loại bỏ cột trùng lặp trước khi merge)
-    cols_to_drop_xep_hang = [c for c in df_xep_hang.columns if c in df_hoc_sinh.columns and c != 'ma_hoc_sinh']
-    df_xep_hang_clean = df_xep_hang.drop(columns=cols_to_drop_xep_hang)
+        df = pd.read_csv(input_path)
 
-    df_student_profile = pd.merge(df_hoc_sinh, df_xep_hang_clean, on='ma_hoc_sinh', how='left')
+        # 1. Báo cáo tình trạng dữ liệu ban đầu
+        print(f'- Kích thước ban đầu: {df.shape[0]} dòng, {df.shape[1]} cột')
+        print(f'- Số dòng trùng lặp: {df.duplicated().sum()}')
+        print('- Số giá trị thiếu (Missing values) theo cột:')
+        missing_info = df.isnull().sum()
+        print(missing_info[missing_info > 0])
+        if missing_info.sum() == 0:
+            print('  (Không có giá trị khuyết thiếu)')
 
-    cols_to_drop_thi_thu = [c for c in df_thi_thu.columns if c in df_student_profile.columns and c != 'ma_hoc_sinh']
-    df_thi_thu_clean = df_thi_thu.drop(columns=cols_to_drop_thi_thu)
+        # 2. Xử lý làm sạch cụ thể cho từng tệp
+        df_clean = df.copy()
 
-    df_student_profile = pd.merge(df_student_profile, df_thi_thu_clean, on='ma_hoc_sinh', how='left')
+        # Chuẩn hóa khoảng trắng dư thừa
+        for col in df_clean.select_dtypes(include=['object', 'string']).columns:
+            df_clean[col] = df_clean[col].astype(str).str.strip()
 
-    print("✅ Đã hoàn tất làm sạch dữ liệu!")
-    return {
-        'students': df_student_profile,
-        'majors': df_nganh,
-        'admissions': df_tuyen_sinh
-    }
+        if file_name == '01_Danh_sach_va_Thanh_tich_hoc_sinh.csv':
+            # Điền giá trị khuyết ở cột chứng chỉ ngoại ngữ
+            if 'chung_chi_ngoai_ngu' in df_clean.columns:
+                df_clean['chung_chi_ngoai_ngu'] = df_clean[
+                    'chung_chi_ngoai_ngu'
+                ].fillna('Không có')
 
-if __name__ == "__main__":
-    cleaned_data = load_and_clean_data()
-    df_students = cleaned_data['students']
-    df_admissions = cleaned_data['admissions']
+        elif file_name in [
+            '03_Nganh_hoc_va_Huong_nghiep.csv',
+            '04_Tuyen_sinh_va_Hoc_phi.csv',
+        ]:
+            # Loại bỏ cột rỗng 100% nguon_tham_khao
+            if 'nguon_tham_khao' in df_clean.columns:
+                df_clean = df_clean.drop(columns=['nguon_tham_khao'])
 
-    print("\n" + "="*50)
-    print("📌 KIỂM TRA 1: HỌC SINH CÓ ĐIỂM THI THỬ (LỚP 12)")
-    print("="*50)
-    if 'tong_diem_3_mon' in df_students.columns:
-        has_scores = df_students[df_students['tong_diem_3_mon'].notna()]
-        cols_student = [c for c in ['ma_hoc_sinh', 'ho_va_ten', 'khoi', 'lop', 'tong_diem_3_mon'] if c in df_students.columns]
-        print(has_scores[cols_student].head())
-    else:
-        print(df_students.head())
+        elif file_name == '05_Ket_qua_thi_thu.csv':
+            # Ép kiểu dữ liệu ngày tháng
+            if 'ngay_thi' in df_clean.columns:
+                df_clean['ngay_thi'] = pd.to_datetime(
+                    df_clean['ngay_thi'], format='%d/%m/%Y', errors='coerce'
+                )
 
-    print("\n" + "="*50)
-    print("📌 KIỂM TRA 2: DỮ LIỆU TUYỂN SINH & HỌC PHÍ ĐÃ LÀM SẠCH")
-    print("="*50)
-    cols_to_show = [c for c in ['nganh_hoc', 'ten_nganh', 'ma_nganh', 'diem_chuan', 'diem_chuan_thang_30', 'hoc_phi_so'] if c in df_admissions.columns]
-    print(df_admissions[cols_to_show].head())
+        # 3. Lưu kết quả làm sạch vào thư mục data/
+        output_path = f'data/{file_name.replace(".csv", "_clean.csv")}'
+        df_clean.to_csv(output_path, index=False, encoding='utf-8-sig')
+        cleaned_dfs[file_name] = df_clean
 
-    print("\n" + "="*50)
-    print("📌 KIỂM TRA 3: TỔNG QUAN SỐ CỘT BỊ TRỐNG (NaN)")
-    print("="*50)
-    nan_counts = df_students.isna().sum()
-    print(nan_counts[nan_counts > 0])
+        print(f'\n✅ ĐÃ LÀM SẠCH VÀ LƯU VÀO: {output_path}')
+        print(
+            f'- Kích thước sau làm sạch: {df_clean.shape[0]} dòng, {df_clean.shape[1]} cột'
+        )
+        print(
+            f'- Tổng giá trị thiếu còn lại: {df_clean.isnull().sum().sum()}\n'
+        )
+
+    return cleaned_dfs
+
+
+if __name__ == '__main__':
+    inspect_and_clean_all()
