@@ -1,84 +1,93 @@
 import os
-import pickle
+import joblib
 import numpy as np
 import pandas as pd
-from sklearn.linear_model import LogisticRegression
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error, r2_score
+from sklearn.model_selection import train_test_split
 
-# Ưu tiên import từ data_cleaning.py theo đúng cấu trúc repo GitHub
-try:
-    from data_cleaning import load_and_clean_data
-except ImportError:
-    from machine import load_and_clean_data
+DATA_DIR = os.path.join(os.path.dirname(__file__), "data")
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+KHOI_THI_MAP = {
+    'A00': ['diem_toan', 'diem_vat_li', 'diem_hoa_hoc'],
+    'A01': ['diem_toan', 'diem_vat_li', 'diem_ngoai_ngu'],
+    'B00': ['diem_toan', 'diem_hoa_hoc', 'diem_sinh_hoc'],
+    'C00': ['diem_ngu_van', 'diem_lich_su', 'diem_dia_li'],
+    'D01': ['diem_toan', 'diem_ngu_van', 'diem_ngoai_ngu'],
+    'D07': ['diem_toan', 'diem_hoa_hoc', 'diem_ngoai_ngu'],
+}
 
-def prepare_training_data(cleaned_data):
-    """
-    Tạo tập dữ liệu huấn luyện thực tế từ dữ liệu đã làm sạch:
-    - X_train: Chênh lệch điểm (Điểm 3 môn thi - Điểm chuẩn thang 30)
-    - y_train: Nhãn trúng tuyển (1: Đỗ, 0: Trượt)
-    """
-    df_students = cleaned_data['students']
-    df_admissions = cleaned_data['admissions']
 
-    # Chỉ lấy học sinh lớp 12 có điểm thi 3 môn
-    valid_students = df_students[df_students['tong_diem_3_mon'].notna()].copy()
+def train_and_save_models():
+    f1_path = os.path.join(
+        DATA_DIR, "01_Danh_sach_va_Thanh_tich_hoc_sinh_clean.csv"
+    )
+    f5_path = os.path.join(DATA_DIR, "05_Ket_qua_thi_thu_clean.csv")
+
+    if not os.path.exists(f1_path) or not os.path.exists(f5_path):
+        print("❌ Không tìm thấy file dữ liệu CSV đầu vào trong thư mục ./data!")
+        return
+
+    df1 = pd.read_csv(f1_path)
+    df5 = pd.read_csv(f5_path)
+
+    # Merge dữ liệu dựa trên mã học sinh
+    df = pd.merge(df5, df1, on="ma_hoc_sinh", how="inner")
+
+    print(f"Tổng số bản ghi sau khi merge: {len(df)}")
 
     X_list = []
     y_list = []
 
-    # So sánh điểm của từng học sinh với tất cả các ngành trong file tuyển sinh
-    for _, student in valid_students.iterrows():
-        student_score = student['tong_diem_3_mon']
-        
-        for _, major in df_admissions.iterrows():
-            cutoff_score = major['diem_chuan_thang_30']
-            
-            # Tính độ chênh lệch điểm (Điểm thi - Điểm chuẩn)
-            delta_score = student_score - cutoff_score
-            
-            # Quy ước nhãn: Nếu chênh lệch >= 0 thì Trúng tuyển (1), ngược lại Trượt (0)
-            label = 1 if delta_score >= 0 else 0
-            
-            X_list.append(delta_score)
-            y_list.append(label)
+    for _, row in df.iterrows():
+        khoi = str(row.get("khoi_thi", "")).strip().upper()
+        if khoi in KHOI_THI_MAP:
+            cols = KHOI_THI_MAP[khoi]
+            m1 = row.get(cols[0], np.nan)
+            m2 = row.get(cols[1], np.nan)
+            m3 = row.get(cols[2], np.nan)
+            target = row.get("tong_diem_3_mon", np.nan)
 
-    X = np.array(X_list).reshape(-1, 1)
+            if not (
+                pd.isna(m1) or pd.isna(m2) or pd.isna(m3) or pd.isna(target)
+            ):
+                X_list.append([m1, m2, m3])
+                y_list.append(target)
+
+    X = np.array(X_list)
     y = np.array(y_list)
-    
-    return X, y
 
-def train_and_save_model():
-    """Tải dữ liệu sạch, huấn luyện Logistic Regression và lưu thành file .pkl"""
-    print("⏳ Bước 1: Tải và chuẩn bị dữ liệu sạch cho Machine Learning...")
-    cleaned_data = load_and_clean_data()
-    
-    # Chuẩn bị X (chênh lệch điểm) và y (kết quả trúng tuyển)
-    X_train, y_train = prepare_training_data(cleaned_data)
-    print(f"📊 Đã tạo {len(X_train)} mẫu dữ liệu huấn luyện từ học sinh và ngành học.")
+    if len(X) < 5:
+        print("❌ Không đủ dữ liệu hợp lệ để huấn luyện mô hình!")
+        return
 
-    print("\n⏳ Bước 2: Đang huấn luyện mô hình Logistic Regression...")
-    model = LogisticRegression()
+    # Chia tập train/test
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=0.2, random_state=42
+    )
+
+    # Huấn luyện mô hình Linear Regression
+    model = LinearRegression()
     model.fit(X_train, y_train)
 
-    # Bước 3: Lưu mô hình vào file admission_model.pkl
-    model_path = os.path.join(BASE_DIR, 'admission_model.pkl')
-    with open(model_path, 'wb') as f:
-        pickle.dump(model, f)
-        
-    print(f"\n✅ Đã huấn luyện thành công và lưu file tại: {model_path}")
-    
-    # Chạy thử nghiệm một vài dự đoán mẫu (Sửa truyền mảng 2D để tránh cảnh báo)
-    print("\n" + "="*50)
-    print("📌 THỬ NHIỆM DỰ ĐOÁN XÁC SUẤT TRÚNG TUYỂN MẪU:")
-    print("="*50)
-    test_deltas = [-3.0, -1.0, 0.0, 1.5, 4.0]
-    for delta in test_deltas:
-        prob = model.predict_proba([[delta]])[0][1] * 100
-        status = "Thừa điểm" if delta >= 0 else "Thiếu điểm"
-        print(f"Chênh lệch: {delta:>5.1f} điểm ({status:<10}) ---> Tỉ lệ đỗ: {prob:.2f}%")
+    # Đánh giá mô hình
+    y_pred = model.predict(X_test)
+    mse = mean_squared_error(y_test, y_pred)
+    rmse = np.sqrt(mse)
+    r2 = r2_score(y_test, y_pred)
 
-    return model
+    print("✅ Huấn luyện mô hình thành công!")
+    print(f"- MSE: {mse:.4f}")
+    print(f"- RMSE: {rmse:.4f}")
+    print(f"- R2 Score: {r2:.4f}")
 
+    # Lưu mô hình ra file admission_model.pkl ở thư mục dự án
+    output_dir = os.path.dirname(os.path.abspath(__file__))
+    model_path = os.path.join(output_dir, "admission_model.pkl")
+    joblib.dump(model, model_path)
+    print(f"💾 Đã lưu mô hình vào file: {model_path}")
+
+
+# Quan trọng: Đoạn này để thực thi hàm khi chạy lệnh python ml_model.py
 if __name__ == "__main__":
-    train_and_save_model()
+    train_and_save_models()
