@@ -2,7 +2,7 @@ import os
 import re
 import pandas as pd
 
-# Lấy đường dẫn gốc của dự án
+# Lấy đường dẫn gốc của dự ánz
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 def clean_tuition(text):
