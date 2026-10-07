@@ -2,7 +2,7 @@ import os
 import re
 import pandas as pd
 
-# Lấy đường dẫn gốc của dự ánz
+# Lấy đường dẫn gốc của dự án
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 def clean_tuition(text):
@@ -18,17 +18,14 @@ def clean_tuition(text):
 
 def get_file_path(filename):
     """Lấy đường dẫn chính xác của file CSV trong thư mục data hoặc thư mục gốc"""
-    # 1. Tìm trong thư mục data/ (theo đúng cấu trúc repo GitHub)
     path_data = os.path.join(BASE_DIR, 'data', filename)
     if os.path.exists(path_data):
         return path_data
     
-    # 2. Tìm trực tiếp ở thư mục gốc
     path_root = os.path.join(BASE_DIR, filename)
     if os.path.exists(path_root):
         return path_root
         
-    # 3. Tìm trong thư mục con khác nếu có
     for root, dirs, files in os.walk(BASE_DIR):
         if filename in files:
             return os.path.join(root, filename)
@@ -46,13 +43,33 @@ def load_and_clean_data():
     df_tuyen_sinh = pd.read_csv(get_file_path('04_Tuyen_sinh_va_Hoc_phi.csv'))
     df_thi_thu = pd.read_csv(get_file_path('05_Ket_qua_thi_thu.csv'))
 
-    # 2. Xử lý file Tuyển sinh & Học phí
-    df_tuyen_sinh['diem_chuan_thang_30'] = df_tuyen_sinh['diem_chuan'] * 3.0
-    df_tuyen_sinh['hoc_phi_so'] = df_tuyen_sinh['hoc_phi'].apply(clean_tuition)
+    # 2. CHUẨN HÓA MÃ HỌC SINH VÀ DỮ LIỆU CHUỖI
+    for df in [df_hoc_sinh, df_xep_hang, df_thi_thu]:
+        for col in df.select_dtypes(include='object').columns:
+            df[col] = df[col].astype(str).str.strip()
 
-    # 3. Merge dữ liệu học sinh
-    df_student_profile = pd.merge(df_hoc_sinh, df_xep_hang, on='ma_hoc_sinh', how='left')
-    df_student_profile = pd.merge(df_student_profile, df_thi_thu, on='ma_hoc_sinh', how='left')
+    # 3. XỬ LÝ FILE TUYỂN SINH & HỌC PHÍ
+    if 'diem_chuan' in df_tuyen_sinh.columns:
+        # Nếu điểm chuẩn ở thang 10 thì nhân 3, nếu thang 30 sẵn thì giữ nguyên
+        max_score = df_tuyen_sinh['diem_chuan'].max()
+        if max_score <= 10.0:
+            df_tuyen_sinh['diem_chuan_thang_30'] = df_tuyen_sinh['diem_chuan'] * 3.0
+        else:
+            df_tuyen_sinh['diem_chuan_thang_30'] = df_tuyen_sinh['diem_chuan']
+
+    if 'hoc_phi' in df_tuyen_sinh.columns:
+        df_tuyen_sinh['hoc_phi_so'] = df_tuyen_sinh['hoc_phi'].apply(clean_tuition)
+
+    # 4. MERGE DỮ LIỆU HỌC SINH (Loại bỏ cột trùng lặp trước khi merge)
+    cols_to_drop_xep_hang = [c for c in df_xep_hang.columns if c in df_hoc_sinh.columns and c != 'ma_hoc_sinh']
+    df_xep_hang_clean = df_xep_hang.drop(columns=cols_to_drop_xep_hang)
+
+    df_student_profile = pd.merge(df_hoc_sinh, df_xep_hang_clean, on='ma_hoc_sinh', how='left')
+
+    cols_to_drop_thi_thu = [c for c in df_thi_thu.columns if c in df_student_profile.columns and c != 'ma_hoc_sinh']
+    df_thi_thu_clean = df_thi_thu.drop(columns=cols_to_drop_thi_thu)
+
+    df_student_profile = pd.merge(df_student_profile, df_thi_thu_clean, on='ma_hoc_sinh', how='left')
 
     print("✅ Đã hoàn tất làm sạch dữ liệu!")
     return {
@@ -63,5 +80,27 @@ def load_and_clean_data():
 
 if __name__ == "__main__":
     cleaned_data = load_and_clean_data()
-    print("Mẫu dữ liệu học sinh sau khi làm sạch:")
-    print(cleaned_data['students'].head())
+    df_students = cleaned_data['students']
+    df_admissions = cleaned_data['admissions']
+
+    print("\n" + "="*50)
+    print("📌 KIỂM TRA 1: HỌC SINH CÓ ĐIỂM THI THỬ (LỚP 12)")
+    print("="*50)
+    if 'tong_diem_3_mon' in df_students.columns:
+        has_scores = df_students[df_students['tong_diem_3_mon'].notna()]
+        cols_student = [c for c in ['ma_hoc_sinh', 'ho_va_ten', 'khoi', 'lop', 'tong_diem_3_mon'] if c in df_students.columns]
+        print(has_scores[cols_student].head())
+    else:
+        print(df_students.head())
+
+    print("\n" + "="*50)
+    print("📌 KIỂM TRA 2: DỮ LIỆU TUYỂN SINH & HỌC PHÍ ĐÃ LÀM SẠCH")
+    print("="*50)
+    cols_to_show = [c for c in ['nganh_hoc', 'ten_nganh', 'ma_nganh', 'diem_chuan', 'diem_chuan_thang_30', 'hoc_phi_so'] if c in df_admissions.columns]
+    print(df_admissions[cols_to_show].head())
+
+    print("\n" + "="*50)
+    print("📌 KIỂM TRA 3: TỔNG QUAN SỐ CỘT BỊ TRỐNG (NaN)")
+    print("="*50)
+    nan_counts = df_students.isna().sum()
+    print(nan_counts[nan_counts > 0])
