@@ -81,9 +81,9 @@ def train_and_save_models():
     print(f"- RMSE: {rmse:.4f}")
     print(f"- R2 Score: {r2:.4f}")
 
-    # Lưu mô hình ra file admission_model.pkl ở thư mục dự án
+    # Lưu mô hình ra file score_predictor_model.pkl ở thư mục dự án
     output_dir = os.path.dirname(os.path.abspath(__file__))
-    model_path = os.path.join(output_dir, "admission_model.pkl")
+    model_path = os.path.join(output_dir, "score_predictor_model.pkl")
     joblib.dump(model, model_path)
     print(f"💾 Đã lưu mô hình vào file: {model_path}")
 
