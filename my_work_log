@@ -21,7 +21,7 @@ Chốt file data (thầy hỗ trợ)
 - Và chốt deadline cho version 1 (tức là tất cả các file chính đều phải xong) cho chatbot. để có thể test và cải tiến.
 Thứ 2 thầy yêu cầu trình bày về ý tưởng nên những đầu việc này phải chốt thì công việc mới trôi được.
 
-08-10-2026
+08-10-2026 data_cleaning.py
 - Kiểm tra và Báo cáo tình trạng ban đầu:Đọc từng file CSV trong thư mục data/.   
 - In ra kích thước (số dòng, số cột), kiểm tra số lượng dòng trùng lặp và liệt kê các cột có giá trị bị thiếu (null).   
 - Xử lý & Làm sạch dữ liệu:Chuẩn hóa chuỗi: Xóa khoảng trắng thừa ở đầu/cuối của tất cả các cột dữ liệu dạng văn bản (string/object).   
