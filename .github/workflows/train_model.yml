@@ -31,3 +31,10 @@ jobs:
           git add admission_model.pkl
           git commit -m "Auto train and update ML model" || exit 0
           git push
+      - name: Commit and push trained model
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add score_predictor_model.pkl
+          git commit -m "Auto update trained model [skip ci]" || exit 0
+          git push
