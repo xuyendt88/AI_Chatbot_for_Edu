@@ -42,16 +42,17 @@ def inspect_and_clean_all():
         # 2. Xử lý làm sạch cụ thể cho từng tệp
         df_clean = df.copy()
 
-        # Chuẩn hóa khoảng trắng dư thừa
-        for col in df_clean.select_dtypes(include=['object', 'string']).columns:
-            df_clean[col] = df_clean[col].astype(str).str.strip()
-
         if file_name == '01_Danh_sach_va_Thanh_tich_hoc_sinh.csv':
-            # Điền giá trị khuyết ở cột chứng chỉ ngoại ngữ
-            if 'chung_chi_ngoai_ngu' in df_clean.columns:
-                df_clean['chung_chi_ngoai_ngu'] = df_clean[
-                    'chung_chi_ngoai_ngu'
-                ].fillna('Không có')
+            # Điền "Không có" cho các cột văn bản có giá trị trống/khuyết thiếu
+            target_cols = ['chung_chi_ngoai_ngu', 'thanh_tich_ngoai_khoa']
+            for col in target_cols:
+                if col in df_clean.columns:
+                    # Thay thế giá trị NaN / None chuẩn của pandas
+                    df_clean[col] = df_clean[col].fillna('Không có')
+                    # Thay thế cả dạng chuỗi 'nan', 'None', hoặc khoảng trắng trống
+                    df_clean[col] = df_clean[col].astype(str).replace(
+                        ['nan', 'None', 'NaN', ''], 'Không có'
+                    )
 
         elif file_name in [
             '03_Nganh_hoc_va_Huong_nghiep.csv',
@@ -67,6 +68,10 @@ def inspect_and_clean_all():
                 df_clean['ngay_thi'] = pd.to_datetime(
                     df_clean['ngay_thi'], format='%d/%m/%Y', errors='coerce'
                 )
+
+        # Chuẩn hóa khoảng trắng dư thừa SAU KHI đã điền đầy đủ giá trị
+        for col in df_clean.select_dtypes(include=['object', 'string']).columns:
+            df_clean[col] = df_clean[col].astype(str).str.strip()
 
         # 3. Lưu kết quả làm sạch vào thư mục data/
         output_path = f'data/{file_name.replace(".csv", "_clean.csv")}'
