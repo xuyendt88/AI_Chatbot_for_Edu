@@ -2,7 +2,7 @@
 
 import uuid
 import streamlit as st
-from agent import build_agent, get_final_text
+from agent import build_agent, get_final_result
 
 #  1. Cấu hình trang 
 st.set_page_config(page_title="PathEdu", page_icon="🎓")
@@ -80,7 +80,7 @@ if prompt:
                     {"messages": [{"role": "user", "content": prompt}]},
                     {"configurable": {"thread_id": st.session_state.thread_id}},
                 )
-            answer = get_final_text(result)
+            answer = get_final_result(result)
             
             st.session_state.pop("last_error", None)
         except Exception as exc:
