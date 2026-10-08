@@ -103,7 +103,7 @@ def get_academic_ranking(ma_hoc_sinh: str) -> str:
 # ==========================================
 # 4. TRA CỨU LỊCH SỬ THI THỬ 
 # ==========================================
-def get_mock_exam_history(ma_hoc_sinh: str) -> str:
+def get_exam_work_history(ma_hoc_sinh: str = "") -> str:
     if df_mock_exams is None:
         return json.dumps({"error": "Dữ liệu thi thử không khả dụng."})
     
