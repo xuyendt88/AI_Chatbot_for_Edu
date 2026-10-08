@@ -1,20 +1,21 @@
-import os
+#Tùng
 import json
+import os
 import requests
 from tools import (
-    get_major_info,
-    suggest_majors_by_interest,
-    calculate_admission_chances,
-    get_tuition_fees,
+    get_academic_ranking,
+    get_major_guidance,
+    get_mock_exam_history,
+    get_student_info,
+    predict_score_and_recommend,
     recommend_universities,
-    get_major_guidance
 )
 
 TOOL_MAPPING = {
-    "get_major_info": get_major_info,
-    "suggest_majors_by_interest": suggest_majors_by_interest,
-    "calculate_admission_chances": calculate_admission_chances,
-    "get_tuition_fees": get_tuition_fees,
+    "get_student_info": get_student_info,
+    "get_academic_ranking": get_academic_ranking,
+    "get_mock_exam_history": get_mock_exam_history,
+    "predict_score_and_recommend": predict_score_and_recommend,
     "recommend_universities": recommend_universities,
     "get_major_guidance": get_major_guidance,
 }
@@ -26,74 +27,74 @@ TOOLS_SCHEMA = [
     {
         "type": "function",
         "function": {
-            "name": "get_major_info",
-            "description": "Tra cứu thông tin chi tiết về một ngành học cụ thể bao gồm khối thi, điểm chuẩn, môn học tham khảo, tố chất phù hợp và mở rộng.",
+            "name": "get_student_info",
+            "description": "Tra cứu thông tin cá nhân và bảng điểm học tập của học sinh theo mã học sinh.",
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "major_name": {
+                    "ma_hoc_sinh": {
                         "type": "string",
-                        "description": "Tên ngành học cần tra cứu (ví dụ: 'Công nghệ thông tin', 'Kinh doanh quốc tế')."
+                        "description": "Mã học sinh cần tra cứu (ví dụ: 'HS001').",
                     }
                 },
-                "required": ["major_name"]
-            }
-        }
+                "required": ["ma_hoc_sinh"],
+            },
+        },
     },
     {
         "type": "function",
         "function": {
-            "name": "suggest_majors_by_interest",
-            "description": "Gợi ý danh sách ngành học phù hợp dựa trên sở thích, tính cách hoặc thế mạnh của học sinh.",
+            "name": "get_academic_ranking",
+            "description": "Tra cứu xếp hạng học lực và tổng điểm trung bình của học sinh.",
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "interest_keywords": {
+                    "ma_hoc_sinh": {
                         "type": "string",
-                        "description": "Từ khóa mô tả sở thích, tính cách hoặc thế mạnh (ví dụ: 'sáng tạo', 'logic', 'ngoại ngữ', 'giao tiếp')."
+                        "description": "Mã học sinh cần tra cứu xếp hạng.",
                     }
                 },
-                "required": ["interest_keywords"]
-            }
-        }
+                "required": ["ma_hoc_sinh"],
+            },
+        },
     },
     {
         "type": "function",
         "function": {
-            "name": "calculate_admission_chances",
-            "description": "Tính toán và đánh giá mức độ cơ hội trúng tuyển dựa vào tổng điểm xét tuyển và điểm chuẩn ngành.",
+            "name": "get_mock_exam_history",
+            "description": "Xem lịch sử thi thử và điểm các môn thi của học sinh.",
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "score": {
-                        "type": "number",
-                        "description": "Tổng điểm xét tuyển của học sinh (ví dụ: 25.5)."
+                    "ma_hoc_sinh": {
+                        "type": "string",
+                        "description": "Mã học sinh cần tra cứu lịch sử thi thử.",
+                    }
+                },
+                "required": ["ma_hoc_sinh"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "predict_score_and_recommend",
+            "description": "Dự đoán điểm thi dựa trên Machine Learning và đề xuất khối thi/trường phù hợp.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "ma_hoc_sinh": {
+                        "type": "string",
+                        "description": "Mã học sinh.",
                     },
-                    "major": {
+                    "khoi_thi": {
                         "type": "string",
-                        "description": "Ngành học muốn tra cứu cơ hội trúng tuyển."
-                    }
+                        "description": "Khối thi dự định (ví dụ: 'A00', 'A01', 'D01').",
+                    },
                 },
-                "required": ["score", "major"]
-            }
-        }
-    },
-    {
-        "type": "function",
-        "function": {
-            "name": "get_tuition_fees",
-            "description": "Tra cứu mức học phí tham khảo của một trường đại học cụ thể.",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "university_name": {
-                        "type": "string",
-                        "description": "Tên trường đại học cần tra cứu học phí (ví dụ: 'Đại học Bách khoa', 'Đại học FPT')."
-                    }
-                },
-                "required": ["university_name"]
-            }
-        }
+                "required": ["ma_hoc_sinh", "khoi_thi"],
+            },
+        },
     },
     {
         "type": "function",
@@ -105,52 +106,52 @@ TOOLS_SCHEMA = [
                 "properties": {
                     "major_name": {
                         "type": "string",
-                        "description": "Tên ngành học muốn tìm trường."
+                        "description": "Tên ngành học muốn tìm trường.",
                     },
                     "score": {
                         "type": "number",
-                        "description": "Tổng điểm xét tuyển của học sinh."
-                    }
+                        "description": "Tổng điểm xét tuyển của học sinh.",
+                    },
                 },
-                "required": ["major_name", "score"]
-            }
-        }
+                "required": ["major_name", "score"],
+            },
+        },
     },
     {
         "type": "function",
         "function": {
             "name": "get_major_guidance",
-            "description": "Tư vấn định hướng học tập và kỹ năng cần chuẩn bị cho ngành học.",
+            "description": "Tư vấn định hướng học tập và gợi ý ngành học dựa trên sở thích, từ khóa ngành.",
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "major_name": {
+                    "interest_keywords": {
                         "type": "string",
-                        "description": "Tên ngành học cần tư vấn định hướng."
+                        "description": "Từ khóa mô tả sở thích hoặc tên ngành cần tư vấn.",
                     }
                 },
-                "required": ["major_name"]
-            }
-        }
-    }
+                "required": ["interest_keywords"],
+            },
+        },
+    },
 ]
 
 
 def run_agent(messages: list) -> str:
     api_key = os.getenv("OPENROUTER_API_KEY", "")
     if not api_key:
-        return " Chưa cấu hình OPENROUTER_API_KEY trong biến môi trường hoặc Streamlit secrets."
+        return "Chưa cấu hình OPENROUTER_API_KEY trong biến môi trường hoặc Streamlit secrets."
 
     url = "https://openrouter.ai/api/v1/chat/completions"
     headers = {
         "Authorization": f"Bearer {api_key}",
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
     }
 
     payload = {
         "model": "google/gemini-2.0-flash-001",
         "messages": [{"role": "system", "content": SYSTEM_PROMPT}] + messages,
-        "tools": TOOLS_SCHEMA
+        "tools": TOOLS_SCHEMA,
     }
 
     try:
@@ -169,16 +170,22 @@ def run_agent(messages: list) -> str:
                 if func_name in TOOL_MAPPING:
                     tool_result = TOOL_MAPPING[func_name](**func_args)
                 else:
-                    tool_result = {"error": f"Công cụ '{func_name}' không khả thi."}
+                    tool_result = {
+                        "error": f"Công cụ '{func_name}' không khả thi."
+                    }
 
                 messages.append({
                     "role": "tool",
                     "tool_call_id": tool_call["id"],
-                    "content": json.dumps(tool_result, ensure_ascii=False)
+                    "content": json.dumps(tool_result, ensure_ascii=False),
                 })
 
-            payload["messages"] = [{"role": "system", "content": SYSTEM_PROMPT}] + messages
-            second_response = requests.post(url, headers=headers, json=payload)
+            payload["messages"] = [
+                {"role": "system", "content": SYSTEM_PROMPT}
+            ] + messages
+            second_response = requests.post(
+                url, headers=headers, json=payload
+            )
             second_response.raise_for_status()
             final_data = second_response.json()
             return final_data["choices"][0]["message"]["content"]
