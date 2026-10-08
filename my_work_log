@@ -31,3 +31,10 @@ Thứ 2 thầy yêu cầu trình bày về ý tưởng nên những đầu việ
 - Xuất và lưu file kết quả:Lưu các DataFrame đã làm sạch thành file CSV mới có hậu tố _clean.csv (ví dụ: 01_Danh_sach_va_Thanh_tich_hoc_sinh_clean.csv) 
 vào thư mục data/ với chuẩn định dạng UTF-8 (utf-8-sig).   
 - In báo cáo xác nhận kích thước và số lượng lỗi còn lại sau khi xử lý thành công. 
+
+08-10-2026 ml_model.py
+- Đọc & Đóng gói dữ liệu: Đọc 2 file dữ liệu đã làm sạch (01_..._clean.csv và 05_..._clean.csv trong thư mục data/) và ghép nối theo mã học sinh.   
+- Trích xuất đặc trưng (Features): Lọc và sắp xếp điểm 3 môn thi theo khối đăng ký (A00, B00, C00, D01, D07,...) làm biến đầu vào X, 
+và tổng điểm 3 môn làm mục tiêu dự đoán y.   
+- Huấn luyện mô hình: Chia tập dữ liệu Train/Test (tỉ lệ 80/20) và áp dụng thuật toán Linear Regression (Hồi quy tuyến tính).   
+- Đánh giá & Lưu trữ: Tính toán các chỉ số đánh giá (MSE, RMSE, R2 Score) và xuất mô hình đã huấn luyện thành file admission_model.pkl.
