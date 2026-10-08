@@ -21,11 +21,11 @@ jobs:
       with:
         python-version: '3.10'
 
-    # 3. Cài đặt các thư viện cần thiết (Pandas, v.v.)
+  # 3. Cài đặt các thư viện cần thiết (Pandas)
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        if [ -f requirements.txt ]; then pip install -r requirements.txt; else pip install pandas; fi
+        pip install pandas
 
     # 4. Thực thi file làm sạch dữ liệu
     - name: Run data_cleaning.py
