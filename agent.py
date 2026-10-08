@@ -180,7 +180,7 @@ def run_agent(messages: list) -> str:
     api_messages = [{"role": "system", "content": SYSTEM_PROMPT}] + messages
 
     payload = {
-        "model": "google/gemini-2.0-flash-001",
+       "model": "openrouter/free",
         "messages": api_messages,
         "tools": TOOLS_SCHEMA
     }
@@ -231,3 +231,19 @@ def run_agent(messages: list) -> str:
 
     except Exception as e:
         return f" Xảy ra lỗi hệ thống khi kết nối Agent: {str(e)}"
+class CustomAgent:
+    def invoke(self, input_data, config=None):
+        messages = input_data.get("messages", [])
+        
+        if isinstance(messages, list):
+            return run_agent(messages)
+        else:
+            return run_agent([{"role": "user", "content": str(messages)}])
+
+def build_agent():
+    return CustomAgent()
+
+def get_final_result(result):
+    if isinstance(result, str):
+        return result
+    return str(result)
