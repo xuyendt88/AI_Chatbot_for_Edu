@@ -56,7 +56,7 @@ CAU_HOI_MAU = [
     "Em giỏi Toán, Lý thì nên học ngành gì?",
     "Ngành CNTT có những trường nào?",
 ]
-# cau_hoi_chon = None
+cau_hoi_chon = None
 if not st.session_state.messages:
     st.write("Em có thể bắt đầu bằng một câu hỏi mẫu:")
     for cau in CAU_HOI_MAU:
