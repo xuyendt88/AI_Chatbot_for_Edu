@@ -253,3 +253,75 @@ if __name__ == "__main__":
     
     print("\n=== 6. TEST ĐỊNH HƯỚNG NGÀNH HỌC ===")
     print(get_major_guidance("Trí tuệ nhân tạo"))
+
+
+
+# ALL_TOOL
+
+TOOLS_SCHEMA = [
+    {
+        "type": "function",
+        "function": {
+            "name": "get_student_info",
+            "description": "Tra cứu thông tin cá nhân và bảng điểm học bạ 10 môn của học sinh.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "ma_hoc_sinh": {"type": "string", "description": "Mã học sinh, VD: HS1001"}
+                },
+                "required": ["ma_hoc_sinh"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "predict_score_and_recommend",
+            "description": "Dùng mô hình ML dự đoán điểm trung bình môn theo khối thi (thang 10).",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "ma_hoc_sinh": {"type": "string", "description": "Mã học sinh, VD: HS1001"},
+                    "khoi_thi": {"type": "string", "description": "Khối thi, VD: A00, D01"}
+                },
+                "required": ["ma_hoc_sinh", "khoi_thi"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "recommend_universities",
+            "description": "Lọc tối đa 5 trường đại học có điểm chuẩn <= điểm trung bình dự đoán.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "khoi_thi": {"type": "string", "description": "Khối thi, VD: A00, D01"},
+                    "diem_trung_binh_du_doan": {"type": "number", "description": "Điểm trung bình môn dự đoán (thang điểm 10)"}
+                },
+                "required": ["khoi_thi", "diem_trung_binh_du_doan"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "get_major_guidance",
+            "description": "Tra cứu mô tả ngành, tố chất phù hợp và cơ hội việc làm.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "ten_nganh_hoac_tukhoa": {"type": "string", "description": "Tên ngành học, VD: Trí tuệ nhân tạo"}
+                },
+                "required": ["ten_nganh_hoac_tukhoa"]
+            }
+        }
+    }
+]
+
+TOOL_MAPPER = {
+    "get_student_info": get_student_info,
+    "predict_score_and_recommend": predict_score_and_recommend,
+    "recommend_universities": recommend_universities,
+    "get_major_guidance": get_major_guidance
+}
