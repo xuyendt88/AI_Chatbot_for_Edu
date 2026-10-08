@@ -4,11 +4,10 @@ import os
 import joblib
 
 # ==========================================
-# 1. ĐƯỜNG DẪN DỮ LIỆU ĐỘNG (DYNAMIC PATH)
+# 1. ĐƯỜNG DẪN DỮ LIỆU ĐỘNG & NẠP DỮ LIỆU CSV
 # ==========================================
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-# Cấu hình ánh xạ khối thi
 KHOI_THI_MAP = {
     "A00": ["diem_toan", "diem_vat_li", "diem_hoa_hoc"],
     "A01": ["diem_toan", "diem_vat_li", "diem_ngoai_ngu"],
@@ -20,31 +19,29 @@ KHOI_THI_MAP = {
 
 def load_resources():
     try:
-       
         df_students = pd.read_csv(os.path.join(BASE_DIR, '01_Danh_sach_va_Thanh_tich_hoc_sinh_clean.csv'))
+        df_rankings = pd.read_csv(os.path.join(BASE_DIR, '02_Ket_qua_va_Xep_hang_Hoc_tap_clean.csv'))
         df_majors = pd.read_csv(os.path.join(BASE_DIR, '03_Nganh_hoc_va_Huong_nghiep_clean.csv'))
         df_admissions = pd.read_csv(os.path.join(BASE_DIR, '04_Tuyen_sinh_va_Hoc_phi_clean.csv'))
+        df_mock_exams = pd.read_csv(os.path.join(BASE_DIR, '05_Ket_qua_thi_thu_clean.csv'))
         
         df_majors['ma_nganh'] = df_majors['ma_nganh'].astype(str)
         df_admissions['ma_nganh'] = df_admissions['ma_nganh'].astype(str)
         
         model_path = os.path.join(BASE_DIR, 'score_predictor_model.pkl')
-        if not os.path.exists(model_path):
-            model_path = os.path.join(BASE_DIR, 'score_predictor_model.pkl')
-            
         ml_model = joblib.load(model_path) if os.path.exists(model_path) else None
         
-        return df_students, df_majors, df_admissions, ml_model
+        return df_students, df_rankings, df_majors, df_admissions, df_mock_exams, ml_model
     except Exception as e:
         print(f"Lỗi khi tải tài nguyên: {e}")
-        return None, None, None, None
+        return None, None, None, None, None, None
 
-df_students, df_majors, df_admissions, ml_model = load_resources()
+df_students, df_rankings, df_majors, df_admissions, df_mock_exams, ml_model = load_resources()
 
 
-# ==========================================
-# 2. HÀM TRA CỨU THÔNG TIN HỌC SINH
-# ==========================================
+# ===============================================
+# 2. TRA CỨU HỒ SƠ & BẢNG ĐIỂM THÔNG TIN HỌC SINH
+# ===============================================
 def get_student_info(ma_hoc_sinh: str) -> str:
     if df_students is None:
         return json.dumps({"error": "Dữ liệu không khả dụng."})
@@ -78,7 +75,56 @@ def get_student_info(ma_hoc_sinh: str) -> str:
 
 
 # ==========================================
-# 3. TÍNH ĐIỂM DỰ ĐOÁN TỔNG 3 MÔN (THANG 30)
+# 3. SO SÁNH HỌC LỰC & THỨ HẠNG 
+# ==========================================
+def get_academic_ranking(ma_hoc_sinh: str) -> str:
+    if df_rankings is None:
+        return json.dumps({"error": "Dữ liệu xếp hạng không khả dụng."})
+    
+    student_rank = df_rankings[df_rankings['ma_hoc_sinh'].str.upper() == ma_hoc_sinh.upper().strip()]
+    if student_rank.empty:
+        return json.dumps({"error": f"Không tìm thấy thông tin xếp hạng cho mã HS {ma_hoc_sinh}"}, ensure_ascii=False)
+    
+    row = student_rank.iloc[0]
+    result = {
+        "ma_hoc_sinh": row['ma_hoc_sinh'],
+        "diem_trung_binh_chung": float(row['diem_trung_binh_chung']),
+        "so_sanh_voi_lop": row['so_sanh_voi_lop'],
+        "so_sanh_voi_toan_khoi": row['so_sanh_voi_toan_khoi'],
+        "xep_hang_tung_mon_so_voi_lop": row['xep_hang_tung_mon_so_voi_lop'],
+        "xep_hang_tung_mon_so_voi_khoi": row['xep_hang_tung_mon_so_voi_khoi']
+    }
+    return json.dumps(result, ensure_ascii=False, indent=2)
+
+
+# ==========================================
+# 4. TRA CỨU LỊCH SỬ THI THỬ 
+# ==========================================
+def get_mock_exam_history(ma_hoc_sinh: str) -> str:
+    if df_mock_exams is None:
+        return json.dumps({"error": "Dữ liệu thi thử không khả dụng."})
+    
+    exams = df_mock_exams[df_mock_exams['ma_hoc_sinh'].str.upper() == ma_hoc_sinh.upper().strip()]
+    if exams.empty:
+        return json.dumps({"error": f"Không tìm thấy lịch sử thi thử cho mã HS {ma_hoc_sinh}"}, ensure_ascii=False)
+    
+    results = []
+    for _, row in exams.iterrows():
+        results.append({
+            "ma_hoc_sinh": row['ma_hoc_sinh'],
+            "ngay_thi": str(row['ngay_thi']),
+            "khoi_thi": row['khoi_thi'],
+            "diem_mon_1": float(row['diem_mon_1']),
+            "diem_mon_2": float(row['diem_mon_2']),
+            "diem_mon_3": float(row['diem_mon_3']),
+            "tong_diem_3_mon": float(row['tong_diem_3_mon']),
+            "diem_trung_binh": float(row['diem_trung_binh'])
+        })
+    return json.dumps(results, ensure_ascii=False, indent=2)
+
+
+# ==========================================
+# 5. DỰ ĐOÁN ĐIỂM BẰNG ML MODEL (THANG 30)
 # ==========================================
 def predict_score_and_recommend(ma_hoc_sinh: str, khoi_thi: str) -> str:
     if df_students is None:
@@ -96,12 +142,10 @@ def predict_score_and_recommend(ma_hoc_sinh: str, khoi_thi: str) -> str:
     cols = KHOI_THI_MAP[khoi_thi_clean]
     diem_chi_tiet = {col: float(row[col]) for col in cols}
     
-    # Dự đoán TỔNG ĐIỂM 3 MÔN (Thang 30)
     if ml_model is not None:
         input_data = [[diem_chi_tiet[col] for col in cols]]
         predicted_total_score = float(ml_model.predict(input_data)[0])
     else:
-        # Nếu chưa nạp được ML model, dùng tổng cộng thô 3 môn học bạ
         predicted_total_score = sum(diem_chi_tiet.values())
 
     predicted_total_score = round(predicted_total_score, 2)
@@ -111,21 +155,19 @@ def predict_score_and_recommend(ma_hoc_sinh: str, khoi_thi: str) -> str:
         "ho_va_ten": row['ho_va_ten'],
         "khoi_thi": khoi_thi_clean,
         "chi_tiet_3_mon": diem_chi_tiet,
-        "tong_diem_3_mon_du_doan_ml": predicted_total_score  # Thang 30
+        "tong_diem_3_mon_du_doan_ml": predicted_total_score
     }
     return json.dumps(result, ensure_ascii=False, indent=2)
 
 
 # ==========================================
-# 4. GỢI Ý TRƯỜNG (Quy đổi nhẹ để so sánh)
+# 6. TRA CỨU ĐIỂM CHUẨN, HỌC PHÍ & GỢI Ý TRƯỜNG 
 # ==========================================
 def recommend_universities(khoi_thi: str, tong_diem_3_mon_du_doan: float) -> str:
     if df_admissions is None or df_majors is None:
         return json.dumps({"error": "Dữ liệu tuyển sinh không khả dụng."})
     
     khoi_clean = khoi_thi.upper().strip()
-    
-    # Quy đổi tổng điểm 30 về điểm trung bình môn thang 10 để so sánh với file CSV tuyển sinh
     diem_trung_binh_so_sanh = tong_diem_3_mon_du_doan / 3.0
     
     filtered = df_admissions[
@@ -137,14 +179,14 @@ def recommend_universities(khoi_thi: str, tong_diem_3_mon_du_doan: float) -> str
     
     results = []
     for _, row in merged.head(5).iterrows():
-        # Hiển thị điểm chuẩn ở dạng tổng 3 môn (x 3) cho người dùng dễ nhìn
         diem_chuan_thang_30 = round(float(row['diem_chuan']) * 3.0, 2)
         results.append({
             "ten_truong": row['ten_truong'],
             "ma_truong": row['ma_truong'],
             "ten_nganh": row['ten_nganh'] if pd.notna(row['ten_nganh']) else f"Ngành {row['ma_nganh']}",
             "diem_chuan_thang_30": diem_chuan_thang_30,
-            "hoc_phi_du_kien": row['hoc_phi']
+            "hoc_phi_du_kien": row['hoc_phi'],
+            "chinh_sach_hoc_bong": row['chinh_sach_hoc_bong'] if pd.notna(row['chinh_sach_hoc_bong']) else "Không có"
         })
         
     if not results:
@@ -157,7 +199,7 @@ def recommend_universities(khoi_thi: str, tong_diem_3_mon_du_doan: float) -> str
 
 
 # ==========================================
-# 5. HÀM TRA CỨU ĐỊNH HƯỚNG NGÀNH HỌC
+# 7. TRA CỨU NGÀNH HỌC & TỔ HỢP XÉT TUYỂN 
 # ==========================================
 def get_major_guidance(ten_nganh_hoac_tukhoa: str) -> str:
     if df_majors is None:
@@ -178,6 +220,7 @@ def get_major_guidance(ten_nganh_hoac_tukhoa: str) -> str:
             "ma_nganh": str(row['ma_nganh']),
             "ten_nganh": row['ten_nganh'],
             "khoi_thi": row['khoi_thi'],
+            "to_hop_mon_xet_tuyen": row['to_hop_mon_xet_tuyen'] if 'to_hop_mon_xet_tuyen' in row and pd.notna(row['to_hop_mon_xet_tuyen']) else row['khoi_thi'],
             "mo_ta_nganh": row['mo_ta_nganh'],
             "to_chat_phu_hop": row['to_chat_phu_hop'],
             "co_hoi_viec_lam": row['co_hoi_viec_lam'],
@@ -185,4 +228,3 @@ def get_major_guidance(ten_nganh_hoac_tukhoa: str) -> str:
         })
         
     return json.dumps(results, ensure_ascii=False, indent=2)
-
