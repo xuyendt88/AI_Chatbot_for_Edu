@@ -2,13 +2,13 @@
 * @xuyendt88
 
 # Tầng dữ liệu & Machine Learning (Tùng + Đức Anh)
-/data_cleaning.py @buithantung01-debug @dn270929-star
-/ml_model.py @buithantung01-debug @dn270929-star
-/agent.py @buithantung01-debug @dn270929-star
+/data_cleaning.py @dn270929-star
+/ml_model.py @dn270929-star
+/agent.py @buithantung01-debug 
 
 # Tầng Cầu nối Agent (Nguyên)
 /tools.py @nguyenanh110499
 
 # Tầng Giao diện Web Streamlit (Đạt)
 /app.py @datpham3008-maker
-/requirements.txt @datpham3008-maker
+/requirements.txt
