@@ -78,7 +78,7 @@ def get_student_info(ma_hoc_sinh: str) -> str:
 
 
 # ==========================================
-# 3. TÍNH ĐIỂM DỰ ĐOÁN BẰNG ML MODEL (THANG 10)
+# 3. TÍNH ĐIỂM DỰ ĐOÁN TỔNG 3 MÔN (THANG 30)
 # ==========================================
 def predict_score_and_recommend(ma_hoc_sinh: str, khoi_thi: str) -> str:
     if df_students is None:
@@ -96,55 +96,60 @@ def predict_score_and_recommend(ma_hoc_sinh: str, khoi_thi: str) -> str:
     cols = KHOI_THI_MAP[khoi_thi_clean]
     diem_chi_tiet = {col: float(row[col]) for col in cols}
     
-    # Dự đoán điểm qua mô hình ML (Thang 10 - Trung bình môn)
+    # Dự đoán TỔNG ĐIỂM 3 MÔN (Thang 30)
     if ml_model is not None:
         input_data = [[diem_chi_tiet[col] for col in cols]]
-        predicted_score = float(ml_model.predict(input_data)[0])
+        predicted_total_score = float(ml_model.predict(input_data)[0])
     else:
-        # Nếu chưa nạp được file .pkl, dùng trung bình cộng 3 môn
-        predicted_score = sum(diem_chi_tiet.values()) / 3.0
+        # Nếu chưa nạp được ML model, dùng tổng cộng thô 3 môn học bạ
+        predicted_total_score = sum(diem_chi_tiet.values())
 
-    predicted_score = round(predicted_score, 2)
+    predicted_total_score = round(predicted_total_score, 2)
     
     result = {
         "ma_hoc_sinh": row['ma_hoc_sinh'],
         "ho_va_ten": row['ho_va_ten'],
         "khoi_thi": khoi_thi_clean,
         "chi_tiet_3_mon": diem_chi_tiet,
-        "diem_trung_binh_du_doan_ml": predicted_score
+        "tong_diem_3_mon_du_doan_ml": predicted_total_score  # Thang 30
     }
     return json.dumps(result, ensure_ascii=False, indent=2)
 
 
 # ==========================================
-# 4. MERGE VÀ SO SÁNH ĐÚNG THANG ĐIỂM
+# 4. GỢI Ý TRƯỜNG (Quy đổi nhẹ để so sánh)
 # ==========================================
-def recommend_universities(khoi_thi: str, diem_trung_binh_du_doan: float) -> str:
+def recommend_universities(khoi_thi: str, tong_diem_3_mon_du_doan: float) -> str:
     if df_admissions is None or df_majors is None:
         return json.dumps({"error": "Dữ liệu tuyển sinh không khả dụng."})
     
     khoi_clean = khoi_thi.upper().strip()
     
+    # Quy đổi tổng điểm 30 về điểm trung bình môn thang 10 để so sánh với file CSV tuyển sinh
+    diem_trung_binh_so_sanh = tong_diem_3_mon_du_doan / 3.0
+    
     filtered = df_admissions[
         (df_admissions['khoi_xet_tuyen'].str.contains(khoi_clean, case=False, na=False)) &
-        (df_admissions['diem_chuan'] <= diem_trung_binh_du_doan)
+        (df_admissions['diem_chuan'] <= diem_trung_binh_so_sanh)
     ].sort_values(by='diem_chuan', ascending=False)
     
     merged = pd.merge(filtered, df_majors[['ma_nganh', 'ten_nganh']], on='ma_nganh', how='left')
     
     results = []
     for _, row in merged.head(5).iterrows():
+        # Hiển thị điểm chuẩn ở dạng tổng 3 môn (x 3) cho người dùng dễ nhìn
+        diem_chuan_thang_30 = round(float(row['diem_chuan']) * 3.0, 2)
         results.append({
             "ten_truong": row['ten_truong'],
             "ma_truong": row['ma_truong'],
             "ten_nganh": row['ten_nganh'] if pd.notna(row['ten_nganh']) else f"Ngành {row['ma_nganh']}",
-            "diem_chuan_trung_binh_mon": float(row['diem_chuan']),
+            "diem_chuan_thang_30": diem_chuan_thang_30,
             "hoc_phi_du_kien": row['hoc_phi']
         })
         
     if not results:
         return json.dumps({
-            "thong_bao": f"Không tìm thấy trường có điểm chuẩn <= {diem_trung_binh_du_doan} cho khối {khoi_clean}.",
+            "thong_bao": f"Không tìm thấy trường có điểm chuẩn <= {tong_diem_3_mon_du_doan} cho khối {khoi_clean}.",
             "goi_y": "Học sinh có thể xem xét thêm các ngành hoặc khối thi khác."
         }, ensure_ascii=False, indent=2)
         
