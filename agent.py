@@ -223,12 +223,12 @@ def run_agent(messages: list) -> str:
             second_res_data = second_response.json()
 
             if "choices" in second_res_data and second_res_data["choices"]:
-                return second_res_data["choices"][0]["message"].get("content", "")
+                content = second_res_data["choices"][0]["message"].get("content")
+                return content or "Đã thực thi công cụ thành công."
             else:
-                return " Không thể nhận phản hồi từ mô hình sau khi thực thi công cụ."
+                return "Không thể nhận phản hồi từ mô hình sau khi thực thi công cụ."
 
-        return msg.get("content", "")
-
+        return msg.get("content") or "Xin lỗi, tôi chưa hiểu rõ ý bạn. Bạn có thể hỏi lại không?"
     except Exception as e:
         return f" Xảy ra lỗi hệ thống khi kết nối Agent: {str(e)}"
 class CustomAgent:
@@ -244,6 +244,6 @@ def build_agent():
     return CustomAgent()
 
 def get_final_result(result):
-    if isinstance(result, str):
-        return result
+    if not result or result == "None":
+        return "Rất tiếc, mô hình chưa đưa ra được phản hồi. Bạn hãy thử lại hoặc đổi câu hỏi nhé!"
     return str(result)
