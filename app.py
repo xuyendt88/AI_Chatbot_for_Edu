@@ -89,7 +89,7 @@ if prompt:
 
         st.markdown(answer)
 
-    st.session_state.messages.append({"role": "assistant", "content": answer, "trace": trace})
+    st.session_state.messages.append({"role": "assistant", "content": answer})
 
 # ---- 9. Khung lỗi ----
 if "last_error" in st.session_state:
