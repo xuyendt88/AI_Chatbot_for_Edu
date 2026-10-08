@@ -4,8 +4,10 @@ import os
 import joblib
 
 # ==========================================
-# 1. KHỞI TẠO VÀ ĐỌC DỮ LIỆU TRỰC TIẾP
+# 1. ĐƯỜNG DẪN DỮ LIỆU ĐỘNG (DYNAMIC PATH)
 # ==========================================
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
 # Cấu hình ánh xạ khối thi
 KHOI_THI_MAP = {
     "A00": ["diem_toan", "diem_vat_li", "diem_hoa_hoc"],
@@ -18,19 +20,17 @@ KHOI_THI_MAP = {
 
 def load_resources():
     try:
-        # Đọc trực tiếp các file CSV theo tên file
-        df_students = pd.read_csv('01_Danh_sach_va_Thanh_tich_hoc_sinh_clean.csv')
-        df_majors = pd.read_csv('03_Nganh_hoc_va_Huong_nghiep_clean.csv')
-        df_admissions = pd.read_csv('04_Tuyen_sinh_va_Hoc_phi_clean.csv')
+       
+        df_students = pd.read_csv(os.path.join(BASE_DIR, '01_Danh_sach_va_Thanh_tich_hoc_sinh_clean.csv'))
+        df_majors = pd.read_csv(os.path.join(BASE_DIR, '03_Nganh_hoc_va_Huong_nghiep_clean.csv'))
+        df_admissions = pd.read_csv(os.path.join(BASE_DIR, '04_Tuyen_sinh_va_Hoc_phi_clean.csv'))
         
-        # Ép kiểu ma_nganh về str ngay khi load để tránh lỗi rỗng khi merge
         df_majors['ma_nganh'] = df_majors['ma_nganh'].astype(str)
         df_admissions['ma_nganh'] = df_admissions['ma_nganh'].astype(str)
         
-        # Đọc trực tiếp file mô hình Machine Learning (.pkl)
-        model_path = 'score_predictor_model.pkl'
+        model_path = os.path.join(BASE_DIR, 'score_predictor_model.pkl')
         if not os.path.exists(model_path):
-            model_path = 'score_predictor_model.pkl'
+            model_path = os.path.join(BASE_DIR, 'score_predictor_model.pkl')
             
         ml_model = joblib.load(model_path) if os.path.exists(model_path) else None
         
@@ -180,3 +180,4 @@ def get_major_guidance(ten_nganh_hoac_tukhoa: str) -> str:
         })
         
     return json.dumps(results, ensure_ascii=False, indent=2)
+
