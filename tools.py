@@ -19,11 +19,14 @@ KHOI_THI_MAP = {
 
 def load_resources():
     try:
-        df_students = pd.read_csv(os.path.join(BASE_DIR, '01_Danh_sach_va_Thanh_tich_hoc_sinh_clean.csv'))
-        df_rankings = pd.read_csv(os.path.join(BASE_DIR, '02_Ket_qua_va_Xep_hang_Hoc_tap_clean.csv'))
-        df_majors = pd.read_csv(os.path.join(BASE_DIR, '03_Nganh_hoc_va_Huong_nghiep_clean.csv'))
-        df_admissions = pd.read_csv(os.path.join(BASE_DIR, '04_Tuyen_sinh_va_Hoc_phi_clean.csv'))
-        df_mock_exams = pd.read_csv(os.path.join(BASE_DIR, '05_Ket_qua_thi_thu_clean.csv'))
+        # Thêm 'data' vào đường dẫn trỏ tới thư mục chứa CSV
+        DATA_DIR = os.path.join(BASE_DIR, 'data')
+        
+        df_students = pd.read_csv(os.path.join(DATA_DIR, '01_Danh_sach_va_Thanh_tich_hoc_sinh_clean.csv'))
+        df_rankings = pd.read_csv(os.path.join(DATA_DIR, '02_Ket_qua_va_Xep_hang_Hoc_tap_clean.csv'))
+        df_majors = pd.read_csv(os.path.join(DATA_DIR, '03_Nganh_hoc_va_Huong_nghiep_clean.csv'))
+        df_admissions = pd.read_csv(os.path.join(DATA_DIR, '04_Tuyen_sinh_va_Hoc_phi_clean.csv'))
+        df_mock_exams = pd.read_csv(os.path.join(DATA_DIR, '05_Ket_qua_thi_thu_clean.csv'))
         
         df_majors['ma_nganh'] = df_majors['ma_nganh'].astype(str)
         df_admissions['ma_nganh'] = df_admissions['ma_nganh'].astype(str)
