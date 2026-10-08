@@ -204,11 +204,12 @@ def recommend_universities(khoi_thi: str, tong_diem_3_mon_du_doan: float) -> str
 # ==========================================
 # 7. TRA CỨU NGÀNH HỌC & TỔ HỢP XÉT TUYỂN 
 # ==========================================
-def get_major_guidance(ten_nganh_hoac_tukhoa: str) -> str:
+def get_major_guidance(ten_nganh_hoac_tukhoa: str = "", **kwargs) -> str:
     if df_majors is None:
         return json.dumps({"error": "Dữ liệu ngành học không khả dụng."})
     
-    kw = ten_nganh_hoac_tukhoa.lower().strip()
+    target_kw = ten_nganh_hoac_tukhoa or kwargs.get("interest_keywords", "")
+    kw = str(target_kw).lower().strip()
     results_df = df_majors[
         df_majors['ten_nganh'].str.lower().str.contains(kw, na=False) |
         df_majors['mon_hoc_trong_tam'].str.lower().str.contains(kw, na=False)
