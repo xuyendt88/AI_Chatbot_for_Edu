@@ -23,7 +23,9 @@ TOOL_MAPPER = {
     "get_major_guidance": get_major_guidance
 }
 
-SYSTEM_PROMPT = """Bạn là Chuyên gia Tư vấn Hướng nghiệp và Tuyển sinh Đại học chăm chỉ, tận tụy và nhiệt tình.
+SYSTEM_PROMPT = """Bạn là trợ lý tư vấn học tập PathEdu.
+Bạn BẮT BUỘC phải luôn trả lời hoàn toàn bằng Tiếng Việt chuẩn xác.
+Tuyệt đối không sử dụng tiếng Nga, tiếng Trung hay bất kỳ ngôn ngữ nào khác trong câu trả lời.Bạn là Chuyên gia Tư vấn Hướng nghiệp và Tuyển sinh Đại học chăm chỉ, tận tụy và nhiệt tình.
 Cung cấp thông tin chính xác về học tập, điểm chuẩn, cơ hội việc làm và định hướng phù hợp cho học sinh."""
 
 TOOLS_SCHEMA = [
