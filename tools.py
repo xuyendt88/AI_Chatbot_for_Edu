@@ -231,3 +231,25 @@ def get_major_guidance(ten_nganh_hoac_tukhoa: str) -> str:
         })
         
     return json.dumps(results, ensure_ascii=False, indent=2)
+
+# ==========================================
+# KHỐI TEST CHẠY THỬ TRÊN GITHUB ACTIONS
+# ==========================================
+if __name__ == "__main__":
+    print("=== 1. TEST THÔNG TIN HỌC SINH ===")
+    print(get_student_info("HS1001"))
+    
+    print("\n=== 2. TEST SO SÁNH THỨ HẠNG ===")
+    print(get_academic_ranking("HS1001"))
+    
+    print("\n=== 3. TEST LỊCH SỬ THI THỬ ===")
+    print(get_mock_exam_history("HS1181"))
+    
+    print("\n=== 4. TEST DỰ ĐOÁN ĐIỂM (MODEL ML) ===")
+    print(predict_score_and_recommend("HS1001", "A00"))
+    
+    print("\n=== 5. TEST GỢI Ý TRƯỜNG ĐẠI HỌC ===")
+    print(recommend_universities("A00", 24.5))
+    
+    print("\n=== 6. TEST ĐỊNH HƯỚNG NGÀNH HỌC ===")
+    print(get_major_guidance("Trí tuệ nhân tạo"))
