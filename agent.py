@@ -144,9 +144,16 @@ TOOLS_SCHEMA = [
 ]
 
 
+class CustomAgent:
+    def invoke(self, input_data, config=None):
+        # Lấy câu hỏi từ danh sách messages
+        messages = input_data.get("messages", [])
+        prompt = messages[-1]["content"] if messages else ""
+        # Gọi hàm run_agent đã có sẵn trong agent.py
+        return run_agent(prompt)
+
 def build_agent():
-    """Hàm bổ trợ để app.py không bị lỗi ImportError khi import build_agent."""
-    return None
+    return CustomAgent()
 
 
 def get_final_result(res_data) -> str:
@@ -162,7 +169,7 @@ def run_agent(messages: list) -> str:
     """
     api_key = os.getenv("OPENROUTER_API_KEY", "")
     if not api_key:
-        return "⚠️ Chưa cấu hình OPENROUTER_API_KEY trong môi trường hoặc Streamlit secrets."
+        return " Chưa cấu hình OPENROUTER_API_KEY trong môi trường hoặc Streamlit secrets."
 
     url = "https://openrouter.ai/api/v1/chat/completions"
     headers = {
