@@ -192,7 +192,7 @@ def run_agent(messages: list) -> str:
     api_messages = [{"role": "system", "content": SYSTEM_PROMPT}] + messages
 
     payload = {
-       "model": "openrouter/free",
+       "model": "google/gemini-3.6-flash",
         "messages": api_messages,
         "tools": TOOLS_SCHEMA
     }
