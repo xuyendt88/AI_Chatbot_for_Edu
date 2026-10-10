@@ -1,8 +1,10 @@
 streamlit
-requests
 pandas
 numpy
 scikit-learn
 joblib
-requests
 python-dotenv
+langchain
+langchain-core
+langchain-google-genai
+langgraph
