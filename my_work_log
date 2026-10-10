@@ -15,7 +15,8 @@ Chốt file data (thầy hỗ trợ)
 * `Settings > Secrets and variables > Actions > New repository secret` > Cất OpenRouter API Key (`APP_API_KEY`) vào két sắt an toàn của GitHub.
 
 01-10-2026
-- Định hướng huấn luyện mô hình với data hiện tại. Bản chất là tìm mô hình thích hợp với data và ra được mục đích của việc huấn luyện này là gì. (Tùng + Đức Anh sẽ đề xuất và mn góp ý)
+- Định hướng huấn luyện mô hình với data hiện tại. Bản chất là tìm mô hình thích hợp với data và ra được mục đích của việc huấn luyện này là gì. 
+(Tùng + Đức Anh sẽ đề xuất và mn góp ý)
 - Xác định đc tính cách của bot (rules) trong agent.py (Tùng và Đức Anh đề xuất nhóm góp ý)
 - Tổng hợp các chức năng của botchat - phần user có thể hỏi, chính là tools.py (Nguyên đề xuất nhóm góp ý)
 - Và chốt deadline cho version 1 (tức là tất cả các file chính đều phải xong) cho chatbot. để có thể test và cải tiến.
@@ -38,3 +39,23 @@ vào thư mục data/ với chuẩn định dạng UTF-8 (utf-8-sig).
 và tổng điểm 3 môn làm mục tiêu dự đoán y.   
 - Huấn luyện mô hình: Chia tập dữ liệu Train/Test (tỉ lệ 80/20) và áp dụng thuật toán Linear Regression (Hồi quy tuyến tính).   
 - Đánh giá & Lưu trữ: Tính toán các chỉ số đánh giá (MSE, RMSE, R2 Score) và xuất mô hình đã huấn luyện thành file admission_model.pkl.
+
+09-10-2026 tools_4.py (Nghiệp vụ dữ liệu & Function Calling Schema)
+- Quản lý & Nạp tài nguyên dữ liệu: Tự động định vị đường dẫn động, nạp đồng loạt 5 file CSV dữ liệu học sinh, xếp hạng, ngành nghề, 
+tuyển sinh đã làm sạch (_clean.csv) và nạp mô hình Machine Learning dự đoán điểm (score_predictor_model.pkl).   
+- Cung cấp các hàm tra cứu chuyên sâu:Tra cứu thông tin cá nhân và bảng điểm 10 môn (get_student_info).   
+- So sánh xếp hạng học lực học sinh với lớp và khối (get_academic_ranking).   
+- Xem lịch sử kết quả thi thử (get_exam_work_history).   
+- Dự đoán điểm thi THPT bằng mô hình Machine Learning (predict_score_and_recommend).   
+- Gợi ý trường đại học, học phí và điểm chuẩn theo khối xét tuyển (recommend_universities).   
+- Tư vấn định hướng ngành nghề và cơ hội việc làm (get_major_guidance).   
+- Khai báo Schema & Mapper: Cấu hình đầy đủ TOOLS_SCHEMA (chuẩn định dạng Function Calling JSON) và TOOL_MAPPER để đồng bộ hoàn toàn giữa 
+các tầng giao tiếp của AI và hệ thống hàm Python. 
+
+10-10-2026 agent_3.py (AI Agent & Điều phối hội thoại)
+- Khởi tạo AI Agent: Cấu hình LangGraph (create_react_agent) kết hợp mô hình Gemini (ChatGoogleGenerativeAI) và bộ nhớ trò chuyện InMemorySaver.   
+- Bọc công cụ (Tool Wrapping): Đăng ký và bọc 6 hàm nghiệp vụ từ tools.py thành các @tool chuẩn LangChain, 
+kèm theo mô tả rõ ràng để LLM nhận diện và kích hoạt chính xác.   
+- Xử lý ngoại lệ an toàn: Bọc khối try-except bên trong từng tool để bắt lỗi runtime và trả về chuỗi JSON thông báo lỗi, tránh làm sập luồng hội thoại của Agent.   
+- Thiết lập System Prompt & Quản lý API Key: Xây dựng tính cách chuyên gia tư vấn tuyển sinh thân thiện, đồng thời hỗ trợ cơ chế tự động tìm nạp API Key bảo mật từ 
+Streamlit Secrets hoặc biến môi trường. 
