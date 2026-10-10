@@ -85,9 +85,9 @@ def build_agent():
     if not api_key:
         raise RuntimeError("Chưa cấu hình API Key trong .streamlit/secrets.toml.")
 
-    # Sử dụng gemini-1.5-flash để tối ưu tốc độ phản hồi cực nhanh và ổn định với tool calling
+    # Sử dụng gemini-3.5-flash để tối ưu tốc độ phản hồi cực nhanh và ổn định với tool calling
     model = ChatGoogleGenerativeAI(
-        model="gemini-1.5-flash",
+        model="gemini-3.5-flash",
         google_api_key=api_key,
         temperature=0,
     )
