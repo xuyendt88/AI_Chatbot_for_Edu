@@ -66,7 +66,7 @@ def build_agent():
         raise RuntimeError("Chưa cấu hình API Key trong .streamlit/secrets.toml.")
 
     model = ChatGoogleGenerativeAI(
-        model="gemini-3.8-flash",
+        model="gemini-2.5-flash",
         google_api_key=api_key,
         temperature=0,
     )
