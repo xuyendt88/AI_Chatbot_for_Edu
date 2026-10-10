@@ -244,7 +244,7 @@ def get_major_guidance(ten_nganh_hoac_tukhoa: str = "", **kwargs) -> str:
 #     print(get_academic_ranking("HS1001"))
     
 #     print("\n=== 3. TEST LỊCH SỬ THI THỬ ===")
-#     print(get_mock_exam_history("HS1181"))
+#     print(get_exam_work_history("HS1181"))
     
 #     print("\n=== 4. TEST DỰ ĐOÁN ĐIỂM (MODEL ML) ===")
 #     print(predict_score_and_recommend("HS1001", "A00"))
@@ -257,7 +257,9 @@ def get_major_guidance(ten_nganh_hoac_tukhoa: str = "", **kwargs) -> str:
 
 
 
-# ALL_TOOL
+# ==========================================
+# KHỐI SCHEMA VÀ MAPPER CHO AI AGENT
+# ==========================================
 
 TOOLS_SCHEMA = [
     {
@@ -277,8 +279,36 @@ TOOLS_SCHEMA = [
     {
         "type": "function",
         "function": {
+            "name": "get_academic_ranking",
+            "description": "Tra cứu xếp hạng học lực, điểm trung bình chung và so sánh với lớp/khối của học sinh.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "ma_hoc_sinh": {"type": "string", "description": "Mã học sinh, VD: HS1001"}
+                },
+                "required": ["ma_hoc_sinh"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "get_exam_work_history",
+            "description": "Tra cứu lịch sử làm bài thi thử và điểm các môn thi thử của học sinh.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "ma_hoc_sinh": {"type": "string", "description": "Mã học sinh, VD: HS1001"}
+                },
+                "required": ["ma_hoc_sinh"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
             "name": "predict_score_and_recommend",
-            "description": "Dùng mô hình ML dự đoán điểm trung bình môn theo khối thi (thang 10).",
+            "description": "Dùng mô hình ML dự đoán tổng điểm 3 môn theo khối thi.",
             "parameters": {
                 "type": "object",
                 "properties": {
@@ -293,14 +323,14 @@ TOOLS_SCHEMA = [
         "type": "function",
         "function": {
             "name": "recommend_universities",
-            "description": "Lọc tối đa 5 trường đại học có điểm chuẩn <= điểm trung bình dự đoán.",
+            "description": "Lọc tối đa 5 trường đại học có điểm chuẩn phù hợp với điểm dự đoán và khối thi.",
             "parameters": {
                 "type": "object",
                 "properties": {
                     "khoi_thi": {"type": "string", "description": "Khối thi, VD: A00, D01"},
-                    "diem_trung_binh_du_doan": {"type": "number", "description": "Điểm trung bình môn dự đoán (thang điểm 10)"}
+                    "tong_diem_3_mon_du_doan": {"type": "number", "description": "Tổng điểm 3 môn dự đoán (thang điểm 30)"}
                 },
-                "required": ["khoi_thi", "diem_trung_binh_du_doan"]
+                "required": ["khoi_thi", "tong_diem_3_mon_du_doan"]
             }
         }
     },
@@ -308,11 +338,11 @@ TOOLS_SCHEMA = [
         "type": "function",
         "function": {
             "name": "get_major_guidance",
-            "description": "Tra cứu mô tả ngành, tố chất phù hợp và cơ hội việc làm.",
+            "description": "Tra cứu mô tả ngành, tổ hợp môn, tố chất phù hợp và cơ hội việc làm.",
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "ten_nganh_hoac_tukhoa": {"type": "string", "description": "Tên ngành học, VD: Trí tuệ nhân tạo"}
+                    "ten_nganh_hoac_tukhoa": {"type": "string", "description": "Tên ngành học hoặc từ khóa, VD: Trí tuệ nhân tạo"}
                 },
                 "required": ["ten_nganh_hoac_tukhoa"]
             }
@@ -322,6 +352,8 @@ TOOLS_SCHEMA = [
 
 TOOL_MAPPER = {
     "get_student_info": get_student_info,
+    "get_academic_ranking": get_academic_ranking,
+    "get_exam_work_history": get_exam_work_history,
     "predict_score_and_recommend": predict_score_and_recommend,
     "recommend_universities": recommend_universities,
     "get_major_guidance": get_major_guidance
