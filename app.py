@@ -1,4 +1,4 @@
-"""PathEdu - ứng dụng hoàn chỉnh (giao diện + agent)"""
+"""PathEdu - ứng dụng hoàn chỉnh (giao diện + agent). Bản nâng cấp giao diện, giữ nguyên bố cục và logic cũ."""
 
 import base64
 import json
@@ -9,10 +9,10 @@ import streamlit as st
 from agent import build_agent, get_final_result
 from tools import get_academic_ranking, get_student_info  
 
-# ---- 0. Cấu hình giao diện (đổi ở đây là đủ) ----
-TEN_APP = "PathEdu – La bàn chọn ngành cho học sinh THPT"
-HINH_NEN = "assets/hinh_nen.png"   # đổi ảnh khác: chép ảnh vào thư mục assets
-DO_MO_NEN = 0.55                   # 0 = ảnh rõ nét, 1 = ẩn hẳn ảnh
+# ---- 0. Cấu hình giao diện  ----
+TEN_APP = "PathEdu – Trợ lý học tập cho học sinh THPT"
+HINH_NEN = "assets/hinh_nen.png"   # đổi ảnh khác: chép ảnh vào thư mục assets rồi sửa tên ở đây
+DO_MO_NEN = 0.7                   # 0 = ảnh rõ nét, 1 = ẩn hẳn ảnh
 AVATAR = {"user": "🧑‍🎓", "assistant": "🧭"}
 
 
@@ -33,13 +33,20 @@ def dat_hinh_nen(duong_dan: str, do_mo: float) -> None:
             background-attachment: fixed;
         }}
         [data-testid="stBottom"] > div {{ background: transparent; }}
+        [data-testid="stChatInput"] > div {{
+            border: 2px solid #0B5E57; border-radius: 16px; background: #0F766E;
+            box-shadow: 0 6px 18px rgba(15,118,110,0.30);
+        }}
+        [data-testid="stChatInput"] textarea {{ font-size: 1.05rem; color: #FFFFFF; caret-color: #FFFFFF; }}
+        [data-testid="stChatInput"] textarea::placeholder {{ color: #D1FAE5; opacity: 1; }}
+        [data-testid="stChatInputSubmitButton"] {{ background: #FFFFFF; color: #0F766E; }}
         </style>""",
         unsafe_allow_html=True,
     )
 
 
 #  1. Cấu hình trang
-st.set_page_config(page_title="PathEdu – La bàn chọn ngành", page_icon="🧭")
+st.set_page_config(page_title="PathEdu – Trợ lý học tập", page_icon="🧭")
 dat_hinh_nen(HINH_NEN, DO_MO_NEN)
 st.title(f"🧭 {TEN_APP}")
 st.caption("Xem học lực · Dự đoán điểm thi · Gợi ý ngành & trường phù hợp — dành cho học sinh và phụ huynh")
@@ -121,7 +128,7 @@ CAU_HOI_MAU = [
 if not st.session_state.messages:
     with st.chat_message("assistant", avatar=AVATAR["assistant"]):
         st.markdown(
-            "Chào em! 👋 Mình là **PathEdu**. Em có thể hỏi về điểm số, ngành học hoặc trường đại học. "
+            "Chào bạn! 👋 Mình là **PathEdu**. bạn có thể hỏi về điểm số, ngành học hoặc trường đại học. "
             "Chưa biết hỏi gì thì bấm thử một câu bên dưới nhé:"
         )
     for cau in CAU_HOI_MAU:
@@ -129,7 +136,7 @@ if not st.session_state.messages:
             cau_hoi_chon = cau.split(" ", 1)[1]  # bỏ biểu tượng ở đầu câu
 
 # ---- 7. Ô nhập tin nhắn ----
-prompt = st.chat_input("Em muốn hỏi gì về ngành học, trường đại học?") or cau_hoi_chon
+prompt = st.chat_input("✍️ Em muốn hỏi gì về ngành học, trường đại học?") or cau_hoi_chon
 
 # ---- 8. Xử lý tin nhắn mới ----
 if prompt:
