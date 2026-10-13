@@ -1,4 +1,4 @@
-"""PathEdu - ứng dụng hoàn chỉnh (giao diện + agent). Bản nâng cấp giao diện, giữ nguyên bố cục và logic cũ."""
+"""PathEdu - ứng dụng hoàn chỉnh (giao diện + agent)"""
 
 import base64
 import json
@@ -7,11 +7,11 @@ import uuid
 
 import streamlit as st
 from agent import build_agent, get_final_result
-from tools import get_academic_ranking, get_student_info  # chỉ GỌI hàm của TV2, không sửa
+from tools import get_academic_ranking, get_student_info  
 
 # ---- 0. Cấu hình giao diện (đổi ở đây là đủ) ----
 TEN_APP = "PathEdu – La bàn chọn ngành cho học sinh THPT"
-HINH_NEN = "assets/hinh_nen.png"   # đổi ảnh khác: chép ảnh vào thư mục assets rồi sửa tên ở đây
+HINH_NEN = "assets/hinh_nen.png"   # đổi ảnh khác: chép ảnh vào thư mục assets
 DO_MO_NEN = 0.55                   # 0 = ảnh rõ nét, 1 = ẩn hẳn ảnh
 AVATAR = {"user": "🧑‍🎓", "assistant": "🧭"}
 
