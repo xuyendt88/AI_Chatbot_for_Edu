@@ -128,12 +128,17 @@ CAU_HOI_MAU = [
 if not st.session_state.messages:
     with st.chat_message("assistant", avatar=AVATAR["assistant"]):
         st.markdown(
-            "Chào bạn! 👋 Mình là **PathEdu**. bạn có thể hỏi về điểm số, ngành học hoặc trường đại học. "
+            "Chào em! 👋 Mình là **PathEdu**. Em có thể hỏi về điểm số, ngành học hoặc trường đại học. "
             "Chưa biết hỏi gì thì bấm thử một câu bên dưới nhé:"
         )
+    khu_cau_mau = st.container()                     
+else:
+    khu_cau_mau = st.expander("💡 Câu hỏi gợi ý")    
+
+with khu_cau_mau:
     for cau in CAU_HOI_MAU:
         if st.button(cau, width="stretch"):
-            cau_hoi_chon = cau.split(" ", 1)[1]  # bỏ biểu tượng ở đầu câu
+            cau_hoi_chon = cau.split(" ", 1)[1]  
 
 # ---- 7. Ô nhập tin nhắn ----
 prompt = st.chat_input("✍️ Em muốn hỏi gì về ngành học, trường đại học?") or cau_hoi_chon
