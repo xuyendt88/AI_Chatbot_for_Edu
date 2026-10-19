@@ -2,8 +2,9 @@ import os
 import joblib
 import numpy as np
 import pandas as pd
-from sklearn.linear_model import LinearRegression
-from sklearn.metrics import mean_squared_error, r2_score
+from sklearn.linear_model import LinearRegression, Lasso, ElasticNet
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 from sklearn.model_selection import train_test_split
 
 DATA_DIR = os.path.join(os.path.dirname(__file__), "data")
@@ -66,25 +67,47 @@ def train_and_save_models():
         X, y, test_size=0.2, random_state=42
     )
 
-    # Huấn luyện mô hình Linear Regression
-    model = LinearRegression()
-    model.fit(X_train, y_train)
+    # Khởi tạo các thuật toán học máy để so sánh
+    models = {
+        "Linear Regression": LinearRegression(),
+        "Lasso (L1)": Lasso(alpha=0.1, random_state=42),
+        "ElasticNet": ElasticNet(alpha=0.1, l1_ratio=0.5, random_state=42),
+        "Random Forest": RandomForestRegressor(n_estimators=100, random_state=42)
+    }
 
-    # Đánh giá mô hình
-    y_pred = model.predict(X_test)
-    mse = mean_squared_error(y_test, y_pred)
-    rmse = np.sqrt(mse)
-    r2 = r2_score(y_test, y_pred)
+    best_model = None
+    best_r2 = -float('inf')
+    best_model_name = ""
 
-    print("✅ Huấn luyện mô hình thành công!")
-    print(f"- MSE: {mse:.4f}")
-    print(f"- RMSE: {rmse:.4f}")
-    print(f"- R2 Score: {r2:.4f}")
+    print("\n================ SO SÁNH ĐỘ CHÍNH XÁC CÁC THUẬT TOÁN ================")
+    for name, model in models.items():
+        model.fit(X_train, y_train)
+        y_pred = model.predict(X_test)
+        
+        mse = mean_squared_error(y_test, y_pred)
+        rmse = np.sqrt(mse)
+        mae = mean_absolute_error(y_test, y_pred)
+        r2 = r2_score(y_test, y_pred)
 
-    # Lưu mô hình ra file score_predictor_model.pkl ở thư mục dự án
+        print(f"🔹 Thuật toán: {name}")
+        print(f"   - MSE:  {mse:.4f}")
+        print(f"   - RMSE: {rmse:.4f}")
+        print(f"   - MAE:  {mae:.4f}")
+        print(f"   - R²:   {r2:.4f}")
+        print("-" * 55)
+
+        # Cập nhật mô hình có hệ số R2 tốt nhất
+        if r2 > best_r2:
+            best_r2 = r2
+            best_model = model
+            best_model_name = name
+
+    print(f"\n🏆 Mô hình tối ưu được chọn: {best_model_name} (R² = {best_r2:.4f})")
+
+    # Lưu mô hình tốt nhất ra file score_predictor_model.pkl ở thư mục dự án
     output_dir = os.path.dirname(os.path.abspath(__file__))
     model_path = os.path.join(output_dir, "score_predictor_model.pkl")
-    joblib.dump(model, model_path)
+    joblib.dump(best_model, model_path)
     print(f"💾 Đã lưu mô hình vào file: {model_path}")
 
 
