@@ -62,7 +62,15 @@ def get_major_guidance(ten_nganh_hoac_tukhoa: str) -> str:
         return str(t.get_major_guidance(ten_nganh_hoac_tukhoa))
     except Exception as e:
         return f'{{"error": "Lỗi thực thi tool: {str(e)}"}}'
-
+        
+@tool
+def get_tuition_fee_guidance(muc_hoc_phi_tu_khoa: str) -> str:
+    """Tra cứu danh sách trường, ngành học và điểm chuẩn dựa theo khoảng mức học phí (VD: '35 - 55', '20 - 35')."""
+    try:
+        return str(t.get_tuition_fee_guidance(muc_hoc_phi_tu_khoa))
+    except Exception as e:
+        return f'{{"error": "Lỗi thực thi tool: {str(e)}"}}'
+        
 ALL_TOOLS = [
     get_student_info,
     get_academic_ranking,
@@ -70,6 +78,7 @@ ALL_TOOLS = [
     predict_score_and_recommend,
     recommend_universities,
     get_major_guidance,
+    get_tuition_fee_guidance,
 ]
 
 def _get_api_key():
