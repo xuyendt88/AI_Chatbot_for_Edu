@@ -28,7 +28,7 @@ jobs:
 
     - name: Check syntax & import agent.py
       env:
-        GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        APP_API_KEY: ${{ secrets.APP_API_KEY }}  # <--- Sửa thành tên khớp với GitHub Secret của bạn
       run: |
         python -c "import agent; print('✅ Import agent.py thành công!')"
 
