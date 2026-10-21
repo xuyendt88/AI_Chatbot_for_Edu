@@ -379,7 +379,7 @@ TOOLS_SCHEMA = [
                 "required": ["ten_nganh_hoac_tukhoa"]
             }
         }
-    }
+    },
     {
         "type": "function",
         "function": {
