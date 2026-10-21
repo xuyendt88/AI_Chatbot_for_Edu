@@ -380,6 +380,23 @@ TOOLS_SCHEMA = [
             }
         }
     }
+    {
+        "type": "function",
+        "function": {
+            "name": "get_tuition_fee_guidance",
+            "description": "Tra cứu danh sách trường, ngành học, mã ngành và điểm chuẩn dựa theo khoảng mức học phí (VD: '35 - 55', '20 - 35').",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "muc_hoc_phi_tu_khoa": {
+                        "type": "string", 
+                        "description": "Khoảng mức học phí hoặc từ khóa cần tìm, VD: '35 - 55', '20 - 35'"
+                    }
+                },
+                "required": ["muc_hoc_phi_tu_khoa"]
+            }
+        }
+    }
 ]
 
 TOOL_MAPPER = {
@@ -388,5 +405,6 @@ TOOL_MAPPER = {
     "get_exam_work_history": get_exam_work_history,
     "predict_score_and_recommend": predict_score_and_recommend,
     "recommend_universities": recommend_universities,
-    "get_major_guidance": get_major_guidance
+    "get_major_guidance": get_major_guidance,
+    "get_tuition_fee_guidance": get_tuition_fee_guidance
 }
