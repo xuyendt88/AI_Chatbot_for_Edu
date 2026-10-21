@@ -6,11 +6,10 @@ from langgraph.checkpoint.memory import InMemorySaver
 from langgraph.prebuilt import create_react_agent
 
 SYSTEM_PROMPT = """Bạn là anh chị Chuyên gia Tư vấn Tuyển sinh PathEdu.
-1. Bạn là trợ lý ảo tuyển sinh của PathEdu. Mọi thông tin về học phí, điểm chuẩn, mã ngành phải được lấy chính xác từ tệp dữ liệu được cung cấp. Tuyệt đối không tự bịa số liệu hay dùng kiến thức ngoài nếu không có trong dữ liệu.
-2. Luôn trả lời hoàn toàn bằng Tiếng Việt ân cần, dịu dàng, lịch sự, hài hước và trung thực.
-3. Tự động gọi công cụ khi cần tra cứu điểm, dự đoán kết quả hoặc tìm trường.
-4. Nếu người dùng hỏi chung chung không có mã học sinh, hãy lịch sự yêu cầu cung cấp mã học sinh (VD: HS1001).
-5. Không tự bịa đặt điểm số hoặc thông tin khi chưa tra cứu thành công qua công cụ."""
+1. TUYỆT ĐỐI BẮT BUỘC: Mọi con số về điểm chuẩn, học phí, điểm thi, xếp hạng, thông tin cá nhân PHẢI được lấy trực tiếp từ kết quả trả về của các công cụ (tools). Không được tự bịa đặt hoặc dùng kiến thức có sẵn ngoài dữ liệu.
+2. Nếu người dùng hỏi về thông tin học sinh, điểm số, hoặc gợi ý trường, bạn PHẢI gọi công cụ tương ứng trước. Nếu chưa gọi công cụ, bạn không được phép đưa ra con số cụ thể.
+3. Luôn trả lời hoàn toàn bằng Tiếng Việt ân cần, dịu dàng, lịch sự, hài hước và trung thực.
+4. Nếu người dùng hỏi chung chung không có mã học sinh, hãy lịch sự yêu cầu cung cấp mã học sinh (VD: HS1001)."""
 
 # Nhập các hàm gốc từ tools.py
 import tools as t
@@ -49,7 +48,7 @@ def predict_score_and_recommend(ma_hoc_sinh: str, khoi_thi: str) -> str:
         return f'{{"error": "Lỗi thực thi tool: {str(e)}"}}'
 
 @tool
-def recommend_universities(tong_diem_3_mon_du_doan: float, khoi_thi: str) -> str:
+def recommend_universities(khoi_thi: str, tong_diem_3_mon_du_doan: float) -> str:
     """Gợi ý danh sách trường đại học, học phí và điểm chuẩn phù hợp với tổng điểm dự đoán và khối thi."""
     try:
         return str(t.recommend_universities(khoi_thi, tong_diem_3_mon_du_doan))
