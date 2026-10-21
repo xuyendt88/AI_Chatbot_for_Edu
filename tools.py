@@ -234,6 +234,38 @@ def get_major_guidance(ten_nganh_hoac_tukhoa: str = "", **kwargs) -> str:
     return json.dumps(results, ensure_ascii=False, indent=2)
 
 # ==========================================
+# 8. TRA CỨU HỌC PHÍ & LỌC THEO MỨC HỌC PHÍ
+# ==========================================
+def get_tuition_fee_guidance(muc_hoc_phi_tu_khoa: str) -> str:
+    if df_admissions is None or df_majors is None:
+        return json.dumps({"error": "Dữ liệu tuyển sinh không khả dụng."})
+    
+    kw = str(muc_hoc_phi_tu_khoa).lower().strip()
+    
+    # Lọc các dòng trong bảng tuyển sinh chứa từ khóa học phí (ví dụ: "35 - 55")
+    filtered = df_admissions[df_admissions['hoc_phi'].str.lower().str.contains(kw, na=False)]
+    
+    if filtered.empty:
+        return json.dumps({"thong_bao": f"Không tìm thấy trường nào có mức học phí phù hợp với từ khóa: {muc_hoc_phi_tu_khoa}"}, ensure_ascii=False)
+    
+    # Ghép nối với tên ngành từ df_majors
+    merged = pd.merge(filtered, df_majors[['ma_nganh', 'ten_nganh']], on='ma_nganh', how='left')
+    
+    results = []
+    for _, row in merged.iterrows():
+        results.append({
+            "ten_truong": row['ten_truong'],
+            "ma_truong": row['ma_truong'],
+            "ma_nganh": str(row['ma_nganh']),
+            "ten_nganh": row['ten_nganh'] if pd.notna(row['ten_nganh']) else f"Ngành {row['ma_nganh']}",
+            "hoc_phi": row['hoc_phi'],
+            "diem_chuan": float(row['diem_chuan']) * 3.0, # Quy đổi sang thang 30 nếu cần
+            "chinh_sach_hoc_bong": row['chinh_sach_hoc_bong'] if pd.notna(row['chinh_sach_hoc_bong']) else "Không có"
+        })
+        
+    return json.dumps(results, ensure_ascii=False, indent=2)
+
+# ==========================================
 # KHỐI TEST CHẠY THỬ TRÊN GITHUB ACTIONS
 # ==========================================
 # if __name__ == "__main__":
