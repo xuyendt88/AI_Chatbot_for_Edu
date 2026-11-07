@@ -1,8 +1,11 @@
-# AI_Chatbot_for_Edu
+# 🎓 PathEdu - AI Chatbot Tư vấn Tuyển sinh & Định hướng Hướng nghiệp
 
-# 🎓 AI Chatbot for Edu — Hệ thống AI Tư vấn Tuyển sinh & Định hướng Hướng nghiệp
+[![Python Version](https://img.shields.io/badge/Python-3.8%2B-blue.svg)](https://www.python.org/)
+[![Streamlit](https://img.shields.io/badge/Streamlit-App-red.svg)](https://streamlit.io/)
+[![Google Gemini API](https://img.shields.io/badge/Google%20Gemini-API-orange.svg)](https://ai.google.dev/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-**AI_Chatbot_for_Edu** là giải pháp chatbot thông minh hỗ trợ học sinh THPT (đặc biệt là học sinh lớp 12) trong việc tra cứu điểm số, dự đoán kết quả thi thử bằng Machine Learning và tư vấn chọn ngành, chọn trường đại học/cao đẳng phù hợp.
+**AI_Chatbot_for_Edu** là giải pháp chatbot thông minh được thiết kế đặc biệt dành cho học sinh THPT (đặc biệt là học sinh lớp 12). Hệ thống kết hợp giữa **Machine Learning (ML)** dự đoán điểm thi, **RAG / Dữ liệu tuyển sinh thông minh** và **AI Agent** nhằm hỗ trợ tra cứu kết quả học tập, định hướng ngành nghề và chọn trường Đại học/Cao đẳng một cách tự nhiên, chính xác.
 
 ---
 
@@ -36,16 +39,6 @@ AI_Chatbot_for_Edu/
 └── README.md             # Tài liệu hướng dẫn dự án
 
 ```
-# 🎓 AI Chatbot for Edu — Hệ thống Trợ lý AI Tư vấn Tuyển sinh & Định hướng Hướng nghiệp
-
-[![Python Version](https://img.shields.io/badge/Python-3.8%2B-blue.svg)](https://www.python.org/)
-[![Streamlit](https://img.shields.io/badge/Streamlit-App-red.svg)](https://streamlit.io/)
-[![Google Gemini API](https://img.shields.io/badge/Google%20Gemini-API-orange.svg)](https://ai.google.dev/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-
-**AI_Chatbot_for_Edu** là giải pháp chatbot thông minh được thiết kế đặc biệt dành cho học sinh THPT (đặc biệt là học sinh lớp 12). Hệ thống kết hợp giữa **Machine Learning (ML)** dự đoán điểm thi, **RAG / Dữ liệu tuyển sinh thông minh** và **AI Agent** nhằm hỗ trợ tra cứu kết quả học tập, định hướng ngành nghề và chọn trường Đại học/Cao đẳng một cách tự nhiên, chính xác.
-
----
 
 ## 🏗️ Sơ đồ Hoạt động & Kiến trúc Vận hành Hệ thống
 
