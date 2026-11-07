@@ -35,36 +35,56 @@ AI_Chatbot_for_Edu/
 ├── my_work_log           # Nhật ký tiến độ công việc và ghi chú phát triển
 └── README.md             # Tài liệu hướng dẫn dự án
 
+```
 # 🎓 AI Chatbot for Edu — Hệ thống Trợ lý AI Tư vấn Tuyển sinh & Định hướng Hướng nghiệp
 
 [![Python Version](https://img.shields.io/badge/Python-3.8%2B-blue.svg)](https://www.python.org/)
 [![Streamlit](https://img.shields.io/badge/Streamlit-App-red.svg)](https://streamlit.io/)
+[![Google Gemini API](https://img.shields.io/badge/Google%20Gemini-API-orange.svg)](https://ai.google.dev/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-**AI_Chatbot_for_Edu** là giải pháp chatbot thông minh được thiết kế đặc biệt dành cho học sinh THPT (đặc biệt là học sinh lớp 12). Hệ thống kết hợp giữa **Machine Learning (ML)** và **AI Agent** nhằm hỗ trợ tra cứu học tập, dự đoán điểm số và tư vấn chọn ngành, chọn trường Đại học/Cao đẳng một cách tự nhiên, chính xác và cá nhân hóa.
+**AI_Chatbot_for_Edu** là giải pháp chatbot thông minh được thiết kế đặc biệt dành cho học sinh THPT (đặc biệt là học sinh lớp 12). Hệ thống kết hợp giữa **Machine Learning (ML)** dự đoán điểm thi, **RAG / Dữ liệu tuyển sinh thông minh** và **AI Agent** nhằm hỗ trợ tra cứu kết quả học tập, định hướng ngành nghề và chọn trường Đại học/Cao đẳng một cách tự nhiên, chính xác.
 
 ---
 
-## 🏗️ Sơ đồ Hoạt động & Vai trò các Thành phần
+## 🏗️ Sơ đồ Hoạt động & Kiến trúc Vận hành Hệ thống
 
-Sơ đồ dưới đây minh họa cách thức hoạt động của hệ thống và sự phối hợp giữa các tệp mã nguồn cốt lõi trong dự án:
+Sơ đồ dưới đây minh họa chi tiết luồng xử lý tương tác giữa người dùng, giao diện Streamlit, các dịch vụ back-end, mô hình ML và Google Gemini API:
 
 ```text
-       [ Người dùng / Học sinh (Streamlit UI - app.py) ]
-                             │
-                             ▼
-                 [ AI Agent & LLM (agent.py) ]
-                 │ (Xử lý ngôn ngữ tự nhiên)
-                 │
-       ┌─────────┴─────────────────────────┐
-       ▼                                   ▼
- [ ML Predictor (ml_model.py) ]    [ Tool Registry (tools.py) ]
- (Dự đoán điểm thi dựa trên        (Tra cứu dữ liệu, lọc ngành,
-  kết quả học tập lớp 12)           đề xuất trường tuyển sinh)
-       │                                   │
-       └─────────────────┬─────────────────┘
-                         │
-                         ▼
-             [ Dữ liệu thô / Đã làm sạch ]
-             (Thư mục /data thông qua 
-              script data_cleaning.py)
+streamlit run app.py
+
+👤 [ Người dùng / Học sinh (User) ]
+        │
+        │ 1. Nhập câu hỏi tư vấn / tra cứu (Prompt) trên giao diện Web
+        ▼
+ 🌐 [ app.py (Streamlit UI - Giao diện người dùng) ]
+        │
+        │ 2. Lưu câu hỏi vào st.session_state.messages (Duy trì lịch sử trò chuyện)
+        │ 3. Gọi hàm điều phối AI Agent / LLM tương ứng
+        ▼
+ ⚙️ [ agent.py / tools.py (Back-end Logic & Function Calling) ]
+        │
+        ├─► Bước A: Tải & tiền xử lý tập dữ liệu tuyển sinh / học tập (CSV) bằng Pandas (df)
+        │
+        ├─► Bước B: Kích hoạt mô hình Machine Learning (ml_model.py)
+        │     └─ Dự đoán điểm thi thử và đánh giá khả năng trúng tuyển của học sinh
+        │
+        ├─► Bước C: Truy xuất ngữ cảnh thông minh (Smart Context Retrieval)
+        │     ├─ Chuẩn hóa tiếng Việt & quét từ khóa chuyên ngành, trường học, điểm chuẩn
+        │     ├─ Lọc dữ liệu thống kê tổng quan (điểm trung bình, học lực, phổ điểm)
+        │     └─ Đóng gói dữ liệu (data_insight) kèm System Instruction (Chốnga ảo giác / bịa đặt)
+        │
+        ├─► Bước D: Kết nối Google Gemini API (Client & Chat Session)
+        │     ├─ Đính kèm lịch sử trò chuyện cũ (history_formatted)
+        │     └─ Gửi prompt kèm ngữ cảnh dữ liệu nội bộ lên Google Gemini để tổng hợp câu trả lời
+        │
+        └─► Bước E: Nhận phản hồi (response.text) từ Gemini API và trả về cho app.py
+        │
+        ▼
+ 🌐 [ app.py (Streamlit UI) ]
+        │
+        │ 4. Hiển thị câu trả lời trực quan lên khung chat qua st.markdown()
+        │ 5. Lưu phản hồi vào st.session_state.messages để duy trì mạch hội thoại liên tục
+        ▼
+ 👤 [ Người dùng nhận được kết quả tư vấn tuyển sinh chính xác, cá nhân hóa ]
