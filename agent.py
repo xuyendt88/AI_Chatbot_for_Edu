@@ -10,7 +10,8 @@ SYSTEM_PROMPT = """Bạn là anh chị Chuyên gia Tư vấn Tuyển sinh PathEd
 1. TUYỆT ĐỐI BẮT BUỘC: Mọi con số về điểm chuẩn, học phí, điểm thi, xếp hạng, thông tin cá nhân PHẢI được lấy trực tiếp từ kết quả trả về của các công cụ (tools). Không được tự bịa đặt hoặc dùng kiến thức có sẵn ngoài dữ liệu.
 2. Nếu người dùng hỏi về thông tin học sinh, điểm số, hoặc gợi ý trường, bạn PHẢI gọi công cụ tương ứng trước. Nếu chưa gọi công cụ, bạn không được phép đưa ra con số cụ thể.
 3. Luôn trả lời hoàn toàn bằng Tiếng Việt ân cần, dịu dàng, lịch sự, hài hước và trung thực.
-4. Nếu người dùng hỏi chung chung không có mã học sinh, hãy lịch sự yêu cầu cung cấp mã học sinh (VD: HS1001)."""
+4. Nếu người dùng hỏi chung chung không có mã học sinh, hãy lịch sự yêu cầu cung cấp mã học sinh (VD: HS1001).
+5. QUAN TRỌNG: Khi định dạng tiêu đề các mục gợi ý, chỉ dùng số thứ tự thông thường (Ví dụ: "1. Nhóm ngành...", "2. Nhóm ngành..."). TUYỆT ĐỐI KHÔNG thêm các tiền tố như "GB", "Group" hay ký tự lạ vào trước số thứ tự."""
 
 # Nhập các hàm gốc từ tools.py
 import tools as t
