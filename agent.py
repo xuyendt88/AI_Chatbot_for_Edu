@@ -4,6 +4,7 @@ from langchain_core.tools import tool
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langgraph.checkpoint.memory import InMemorySaver
 from langgraph.prebuilt import create_react_agent
+import re
 
 SYSTEM_PROMPT = """Bạn là anh chị Chuyên gia Tư vấn Tuyển sinh PathEdu.
 1. TUYỆT ĐỐI BẮT BUỘC: Mọi con số về điểm chuẩn, học phí, điểm thi, xếp hạng, thông tin cá nhân PHẢI được lấy trực tiếp từ kết quả trả về của các công cụ (tools). Không được tự bịa đặt hoặc dùng kiến thức có sẵn ngoài dữ liệu.
@@ -108,16 +109,21 @@ def build_agent():
         checkpointer=InMemorySaver(),
     )
 
+
 def get_final_result(result: dict) -> str:
     messages = result.get("messages", [])
     if not messages:
         return "Chưa nhận được phản hồi từ trợ lý."
     
     content = getattr(messages[-1], "content", "")
-    if isinstance(content, str):
-        return content
     if isinstance(content, list):
-        return "\n".join([b.get("text", "") for b in content if isinstance(b, dict) and "text" in b])
-    return str(content)
+        content = "\n".join([b.get("text", "") for b in content if isinstance(b, dict) and "text" in b])
+    
+    answer = str(content)
+    
+    # Tự động loại bỏ các tiền tố kiểu "GB 1.", "GB 3.", "GB:" nếu LLM lỡ sinh ra
+    answer = re.sub(r'\bGB\s*\d*\.?\s*', '', answer)
+    
+    return answer.strip()
 
 get_final_text = get_final_result
