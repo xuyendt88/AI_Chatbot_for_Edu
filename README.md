@@ -35,4 +35,36 @@ AI_Chatbot_for_Edu/
 ├── my_work_log           # Nhật ký tiến độ công việc và ghi chú phát triển
 └── README.md             # Tài liệu hướng dẫn dự án
 
+# 🎓 AI Chatbot for Edu — Hệ thống Trợ lý AI Tư vấn Tuyển sinh & Định hướng Hướng nghiệp
 
+[![Python Version](https://img.shields.io/badge/Python-3.8%2B-blue.svg)](https://www.python.org/)
+[![Streamlit](https://img.shields.io/badge/Streamlit-App-red.svg)](https://streamlit.io/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+**AI_Chatbot_for_Edu** là giải pháp chatbot thông minh được thiết kế đặc biệt dành cho học sinh THPT (đặc biệt là học sinh lớp 12). Hệ thống kết hợp giữa **Machine Learning (ML)** và **AI Agent** nhằm hỗ trợ tra cứu học tập, dự đoán điểm số và tư vấn chọn ngành, chọn trường Đại học/Cao đẳng một cách tự nhiên, chính xác và cá nhân hóa.
+
+---
+
+## 🏗️ Sơ đồ Hoạt động & Vai trò các Thành phần
+
+Sơ đồ dưới đây minh họa cách thức hoạt động của hệ thống và sự phối hợp giữa các tệp mã nguồn cốt lõi trong dự án:
+
+```text
+       [ Người dùng / Học sinh (Streamlit UI - app.py) ]
+                             │
+                             ▼
+                 [ AI Agent & LLM (agent.py) ]
+                 │ (Xử lý ngôn ngữ tự nhiên)
+                 │
+       ┌─────────┴─────────────────────────┐
+       ▼                                   ▼
+ [ ML Predictor (ml_model.py) ]    [ Tool Registry (tools.py) ]
+ (Dự đoán điểm thi dựa trên        (Tra cứu dữ liệu, lọc ngành,
+  kết quả học tập lớp 12)           đề xuất trường tuyển sinh)
+       │                                   │
+       └─────────────────┬─────────────────┘
+                         │
+                         ▼
+             [ Dữ liệu thô / Đã làm sạch ]
+             (Thư mục /data thông qua 
+              script data_cleaning.py)
