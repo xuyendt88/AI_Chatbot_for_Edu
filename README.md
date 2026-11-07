@@ -1,4 +1,4 @@
-# 🎓 PathEdu - AI Chatbot Tư vấn Tuyển sinh & Định hướng Hướng nghiệp
+# 🎓 PathEdu - AI Chatbot Tư vấn Tuyển sinh & Hướng nghiệp
 
 [![Python Version](https://img.shields.io/badge/Python-3.8%2B-blue.svg)](https://www.python.org/)
 [![Streamlit](https://img.shields.io/badge/Streamlit-App-red.svg)](https://streamlit.io/)
@@ -66,7 +66,7 @@ streamlit run app.py
         ├─► Bước C: Truy xuất ngữ cảnh thông minh (Smart Context Retrieval)
         │     ├─ Chuẩn hóa tiếng Việt & quét từ khóa chuyên ngành, trường học, điểm chuẩn
         │     ├─ Lọc dữ liệu thống kê tổng quan (điểm trung bình, học lực, phổ điểm)
-        │     └─ Đóng gói dữ liệu (data_insight) kèm System Instruction (Chốnga ảo giác / bịa đặt)
+        │     └─ Đóng gói dữ liệu (data_insight) kèm System Instruction (Chống ảo giác / bịa đặt)
         │
         ├─► Bước D: Kết nối Google Gemini API (Client & Chat Session)
         │     ├─ Đính kèm lịch sử trò chuyện cũ (history_formatted)
