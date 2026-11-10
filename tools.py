@@ -219,7 +219,7 @@ def get_major_guidance(ten_nganh_hoac_tukhoa: str = "", **kwargs) -> str:       
         return json.dumps({"thong_bao": f"Không tìm thấy ngành học nào với từ khóa: {ten_nganh_hoac_tukhoa}"}, ensure_ascii=False)
     
     results = []
-    for _, row in results_df.iterrows():
+    for _, row in results_df.iterrows():        # duyệt qua từng dòng
         results.append({
             "ma_nganh": str(row['ma_nganh']),
             "ten_nganh": row['ten_nganh'],
