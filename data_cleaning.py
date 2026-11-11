@@ -66,7 +66,7 @@ def inspect_and_clean_all():
             # Ép kiểu dữ liệu ngày tháng
             if 'ngay_thi' in df_clean.columns:
                 df_clean['ngay_thi'] = pd.to_datetime(
-                    df_clean['ngay_thi'], format='%d/%m/%Y', errors='coerce'
+                    df_clean['ngay_thi'], format='%d/%m/%Y', errors='coerce'     # xử lý ngoại lệ, khi ngày tháng bị nhập sai kiểu, sai định dạng hoặc lỗi rác => biến các ô lỗi đó thành giá trị trống, tránh sập chương trình.
                 )
 
         # Chuẩn hóa khoảng trắng dư thừa SAU KHI đã điền đầy đủ giá trị
