@@ -89,11 +89,11 @@ def train_and_save_models():
         mae = mean_absolute_error(y_test, y_pred)
         r2 = r2_score(y_test, y_pred)
 
-        print(f"🔹 Thuật toán: {name}")
-        print(f"   - MSE:  {mse:.4f}")
-        print(f"   - RMSE: {rmse:.4f}")
-        print(f"   - MAE:  {mae:.4f}")
-        print(f"   - R²:   {r2:.4f}")
+        print(f" ♦ Thuật toán: {name}")
+        print(f" - Sai số bình phương trung bình (MSE): {mse:.4f}")
+        print(f" - Căn bậc hai sai số bình phương trung bình (RMSE): {rmse:.4f}")
+        print(f" - Sai số tuyệt đối trung bình (MAE): {mae:.4f}")
+        print(f" - Hệ số xác định (R²): {r2:.4f}")
         print("-" * 55)
 
         # Cập nhật mô hình có hệ số R2 tốt nhất
