@@ -75,7 +75,7 @@ def inspect_and_clean_all():
 
         # 3. Lưu kết quả làm sạch vào thư mục data/
         output_path = f'data/{file_name.replace(".csv", "_clean.csv")}'
-        df_clean.to_csv(output_path, index=False, encoding='utf-8-sig')
+        df_clean.to_csv(output_path, index=False, encoding='utf-8-sig')        # KHÔNG ghi cột số thứ tự (index) của bảng dữ liệu vào trong file xuất ra.
         cleaned_dfs[file_name] = df_clean
 
         print(f'\n✅ ĐÃ LÀM SẠCH VÀ LƯU VÀO: {output_path}')
