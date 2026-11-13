@@ -117,14 +117,14 @@ def get_final_result(result: dict) -> str:
     if not messages:
         return "Chưa nhận được phản hồi từ trợ lý."
     
-    content = getattr(messages[-1], "content", "")
+    content = getattr(messages[-1], "content", "")   # lấy giá trị của một thuộc tính (attribute) từ một đối tượng (object)     
     if isinstance(content, list):
         content = "\n".join([b.get("text", "") for b in content if isinstance(b, dict) and "text" in b])
     
     answer = str(content)
     
     # Tự động loại bỏ các tiền tố kiểu "GB 1.", "GB 3.", "GB:" nếu LLM lỡ sinh ra
-    answer = re.sub(r'\bGB\s*\d*\.?\s*', '', answer)
+    answer = re.sub(r'\bGB\s*\d*\.?\s*', '', answer)    # Làm sạch nhiễu bằng Regular Expression (re.sub)
     
     return answer.strip()
 
