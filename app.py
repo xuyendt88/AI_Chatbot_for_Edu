@@ -26,7 +26,7 @@ def dat_hinh_nen(duong_dan: str, do_mo: float) -> None:
     """Chèn CSS tùy chỉnh giúp giao diện sáng sủa, bo tròn mềm mại và hiện đại hơn."""
     bg_style = ""
     if os.path.exists(duong_dan):
-        with open(duong_dan, "rb") as f:
+        with open(duong_dan, "rb") as f:        # rb chế độ đọc nhị phân
             anh_b64 = base64.b64encode(f.read()).decode()
         lop_phu = f"rgba(255,255,255,{do_mo})"
         bg_style = f"""
